@@ -1,0 +1,20 @@
+#!/bin/bash
+
+spec="$DETOUL_TMP/spec"
+rm -f "$spec"
+
+if [ "$(echo "$DETOUL_BRANCH" | grep -P "^detoul-.+" | wc -l)" == "1" ]; then
+		branches="$(echo "$DETOUL_BRANCH" | sed -e 's/-\?detoul-/ /g')"
+		first="1"
+		for branch in $branches; do
+				echo "take $branch" >> "$spec"
+		done
+else
+		spec_hash="$(git ls-tree detoul-spec | grep "\s$DETOUL_BRANCH$" | xargs echo | cut -d' ' -f3)"
+		if [ "$spec_hash" == "" ]; then
+				echo "Branch specification file not found."
+				exit 1
+		fi
+		git show "$spec_hash" | grep -v "^\#" > "$spec"
+		echo "" >> "$spec"
+fi

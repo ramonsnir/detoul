@@ -1,0 +1,7 @@
+#!/bin/bash
+
+while [ "$(pwd)" != "/" -a ! -d "$(pwd)/.git" ]; do
+		cd ..
+done
+
+pwd

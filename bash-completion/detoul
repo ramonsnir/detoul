@@ -1,0 +1,21 @@
+#!/bin/bash
+
+_detoul() {
+		local line="${COMP_LINE}"
+
+		if [ "$(echo "$line" | wc -w)" == "1" ]; then
+				_script_commands=$(detoul commands)
+		elif [ "$(echo "$line" | wc -w)" == "2" -a "$(echo "$line" | grep "\s$" | wc -l)" == "0" ]; then
+				_script_commands=$(detoul commands)
+		else
+				_script_commands=$(git ls-tree detoul-spec 2>/dev/null | cut -f2)
+		fi
+    local cur prev
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    COMPREPLY=( $(compgen -W "${_script_commands}" -- ${cur}) )
+
+    return 0
+}
+
+complete -F _detoul -o nospace detoul

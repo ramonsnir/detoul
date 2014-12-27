@@ -1,0 +1,92 @@
+#!/bin/bash
+
+exit_code="0"
+
+# http://stackoverflow.com/questions/918886/how-do-i-split-a-string-on-a-delimiter-in-bash
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+  DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+done
+export PATH="$PATH:$(cd "$( dirname "$SOURCE" )" && pwd -P)"
+
+export GIT_WD="$(git-pwd)"
+
+cd "$GIT_WD"
+
+if [ "$GIT_REMOTE" == "" ]; then
+		export GIT_REMOTE="$(git remote | xargs echo | head -n 1)"
+fi
+export GIT_BRANCH="$(git branch | grep "^*" | cut -c3-)"
+
+export DETOUL_TMP=".git/detoul.$(echo "$RANDOM$RANDOM" | git hash-object --stdin)"
+
+cd "$GIT_WD"
+mkdir "$DETOUL_TMP"
+
+quit() {
+		cd "$GIT_WD"
+		rm -fr "$DETOUL_TMP"
+		exit "$exit_code"
+}
+
+fail() {
+		exit_code="1"
+		quit
+}
+
+help() {
+		echo "detoul: a declarative tool for creating integration branches in git"
+		echo "Usage:"
+		echo "    detoul (test|make|push) branch"
+		echo "    detoul help"
+		quit
+}
+
+if [ $# -lt 1 -o "$1" == "help" ]; then
+		help
+elif [ "$1" == "commands" ]; then
+		echo "help"
+		echo "test"
+		echo "make"
+		echo "push"
+		quit
+fi
+
+export DETOUL_BRANCH="$2"
+
+load_detoul_spec_output="$(load-detoul-spec)"
+if [ "$?" != "0" ]; then
+		echo "$load_detoul_spec_output"
+		fail
+fi
+
+detoul-base <"$DETOUL_TMP/spec"
+exit_code="$?"
+cd "$GIT_WD"
+
+if [ "$exit_code" == "0" ]; then
+		case "$1" in
+				test)
+						git branch -D "$DETOUL_BRANCH" >/dev/null 2>&1
+						echo "Integration branch succesfully created."
+						;;
+				make)
+						git checkout "$DETOUL_BRANCH" >/dev/null 2>&1
+						;;
+				push)
+						git checkout "$DETOUL_BRANCH" >/dev/null 2>&1
+						git push --set-upstream "$GIT_REMOTE" "$DETOUL_BRANCH" --force
+						git checkout "$GIT_BRANCH" >/dev/null 2>&1
+						;;
+				*)
+						git branch -D "$DETOUL_BRANCH" >/dev/null 2>&1
+						echo "Unknown operation '$1'."
+						fail
+		esac
+else
+		git branch -D "$DETOUL_BRANCH" >/dev/null 2>&1
+		echo "Failure."
+fi
+quit
