@@ -10,7 +10,7 @@ if [ "$have_uncommitted_changes" != "0" ]; then
 fi
 
 quit() {
-		git checkout "$GIT_BRANCH" >/dev/null 2>&1
+		git checkout "$DETOUL_ORIG_BRANCH" >/dev/null 2>&1
 
 		if [ "$have_uncommitted_changes" != "0" ]; then
 				git stash pop >/dev/null 2>&1
@@ -46,10 +46,10 @@ take() {
 		if [ "$base_branch" == "" ]; then
 				checkout
 		else
-				if [ "$1" == "squash" ]; then
-						echo "Taking '$branch' (squashed)..."
-				else
+				if [ "$1" == "" ]; then
 						echo "Taking '$branch'..."
+				else
+						echo "Taking '$branch' ($1)..."
 				fi
 				source_branch="$(git show-ref "$branch" | cut -d' ' -f1 | head -n 1)"
 				(
@@ -60,10 +60,16 @@ take() {
 								git reset --hard HEAD@{1} >/dev/null 2>&1
 				) || fail
 
-				if [ "$1" == "squash" ]; then
+				if [ "${1/squash}" != "$1" ]; then
 						(
 								git reset --soft "$DETOUL_BRANCH@{1}" >/dev/null 2>&1 &&
 								git commit -m "$2" >/dev/null
+						) || fail
+				fi
+
+				if [ "${1/rebase}" == "$1" ]; then
+						(
+								bash -c "git filter-branch --parent-filter 'cat; echo \"-p $source_branch\"' -f HEAD~..HEAD" >/dev/null 2>&1
 						) || fail
 				fi
 		fi
@@ -92,6 +98,12 @@ while read -r line; do
 		case "${command[0]}" in
 				checkout)
 						checkout
+						;;
+				rebase)
+						take rebase
+						;;
+				rebase-squash)
+						take rebase-squash "$(echo "$line" | sed -e 's/^rebase-squash\s\+[[:graph:]]\+\s\+//')"
 						;;
 				take)
 						take

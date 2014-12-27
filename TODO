@@ -1,7 +1,5 @@
 * rebase/merge conflict resolution support
 * deployment support (Dynamic Yield specific - just need to run make)
 * interactive spec creation
-* octopus-take support
-* merge support
-* merge-no-ff support
+* octopus-take support?
 * spec in folder support?

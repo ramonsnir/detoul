@@ -18,7 +18,7 @@ cd "$GIT_WD"
 if [ "$GIT_REMOTE" == "" ]; then
 		export GIT_REMOTE="$(git remote | xargs echo | head -n 1)"
 fi
-export GIT_BRANCH="$(git branch | grep "^*" | cut -c3-)"
+export DETOUL_ORIG_BRANCH="$(git branch | grep "^*" | cut -c3-)"
 
 export DETOUL_TMP=".git/detoul.$(echo "$RANDOM$RANDOM" | git hash-object --stdin)"
 
@@ -78,7 +78,7 @@ if [ "$exit_code" == "0" ]; then
 				push)
 						git checkout "$DETOUL_BRANCH" >/dev/null 2>&1
 						git push --set-upstream "$GIT_REMOTE" "$DETOUL_BRANCH" --force
-						git checkout "$GIT_BRANCH" >/dev/null 2>&1
+						git checkout "$DETOUL_ORIG_BRANCH" >/dev/null 2>&1
 						;;
 				*)
 						git branch -D "$DETOUL_BRANCH" >/dev/null 2>&1

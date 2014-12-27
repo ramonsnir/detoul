@@ -46,6 +46,12 @@ To actually make the branch (to test it or to use it), we can run `detoul make r
 
 If your deployment procedured isn't configured to make the latest `detoul` branch, then you can make it and push it in a single command (`detoul push release-february`) and then deploy `release-february`.
 
+### rebase vs merge
+
+The default `take` and `take-squash` actions behave a lot like `git-merge` and will play nicely with all merge-detection methods (so Github and Bitbucket will automatically mark relevant pull requests as merged). The difference between the two is in the first-parent commit ancestry, but the whole branch is still accessible through the second parent of the last commit (or only commit if using `take-squash`).
+
+If you don't like this behavior, you can instead use `rebase` and `rebase-squash` which leave no trace of the original branch.
+
 ### Why in bash?
 
 I wrote this on my own time, and wanted to have fun. It shouldn't take more than an hour to translate detoul into any other language, once I choose to which one.
