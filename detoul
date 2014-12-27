@@ -44,29 +44,82 @@ help() {
 		quit
 }
 
-if [ $# -lt 1 -o "$1" == "help" ]; then
+load-spec() {
+		local load_detoul_spec_output="$(load-detoul-spec)"
+		if [ "$?" != "0" ]; then
+				echo "$load_detoul_spec_output"
+				fail
+		fi
+}
+
+if [ $# -lt 1 ]; then
 		help
-elif [ "$1" == "commands" ]; then
-		echo "cat"
-		echo "help"
-		echo "make"
-		echo "push"
-		echo "test"
-		quit
 fi
 
 export DETOUL_BRANCH="$2"
 
-load_detoul_spec_output="$(load-detoul-spec)"
-if [ "$?" != "0" ]; then
-		echo "$load_detoul_spec_output"
-		fail
-fi
+case "$1" in
+		help)
+				help
+				;;
+		commands)
+				echo "add-to"
+				echo "cat"
+				echo "help"
+				echo "make"
+				echo "push"
+				echo "test"
+				quit
+				;;
+		cat)
+				load-spec
+				cat "$DETOUL_TMP/spec"
+				quit
+				;;
+		add-to)
+				target="$2"
+				load-spec
+				addition="$3"
+				op="take"
+				mod=""
+				shift; shift; shift
+				while (($#)); do
+						case "$1" in
+								--rebase)
+										op="rebase"
+										;;
+								--squash|--fixup)
+										mod="-squash"
+										;;
+						esac
+						shift
+				done
+				echo "$op$mod $addition" >> "$DETOUL_TMP/spec"
 
-if [ "$1" == "cat" ]; then
-		cat "$DETOUL_TMP/spec"
-		quit
-fi
+				cd "$GIT_WD"
+
+				have_uncommitted_changes="$(git status --porcelain | wc -l)"
+				if [ "$have_uncommitted_changes" != "0" ]; then
+						git stash -u >/dev/null 2>&1
+				fi
+
+				(
+						git checkout detoul-spec
+						cat "$DETOUL_TMP/spec" > "$target"
+						git add "$target"
+						git commit -m "added to '$target': '$addition'"
+						git checkout "$DETOUL_ORIG_BRANCH"
+				) >/dev/null 2>&1
+
+				if [ "$have_uncommitted_changes" != "0" ]; then
+						git stash pop >/dev/null 2>&1
+				fi
+
+				quit
+				;;
+esac
+
+load-spec
 
 detoul-base <"$DETOUL_TMP/spec"
 exit_code="$?"

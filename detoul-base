@@ -36,9 +36,9 @@ autocomplete() {
 checkout() {
 		echo "Checking out '$branch'..."
 		(
-				git checkout "$branch" >/dev/null 2>&1 &&
-						git checkout -B "$DETOUL_BRANCH" >/dev/null 2>&1
-		) || fail
+				git checkout "$branch" &&
+						git checkout -B "$DETOUL_BRANCH"
+		) >/dev/null 2>&1 || fail
 		base_branch="$branch"
 }
 
@@ -53,24 +53,24 @@ take() {
 				fi
 				source_branch="$(git show-ref "$branch" | cut -d' ' -f1 | head -n 1)"
 				(
-						git checkout "$branch" >/dev/null 2>&1 &&
-								git checkout "$DETOUL_BRANCH" >/dev/null 2>&1 &&
-								git rebase --onto "$DETOUL_BRANCH" "$base_branch" "$source_branch" >/dev/null 2>&1 &&
-								git checkout "$DETOUL_BRANCH" >/dev/null 2>&1 &&
-								git reset --hard HEAD@{1} >/dev/null 2>&1
-				) || fail
+						git checkout "$branch" &&
+								git checkout "$DETOUL_BRANCH" &&
+								git rebase --onto "$DETOUL_BRANCH" "$base_branch" "$source_branch" &&
+								git checkout "$DETOUL_BRANCH" &&
+								git reset --hard HEAD@{1}
+				) >/dev/null 2>&1 || fail
 
 				if [ "${1/squash}" != "$1" ]; then
 						(
-								git reset --soft "$DETOUL_BRANCH@{1}" >/dev/null 2>&1 &&
-								git commit -m "$2" >/dev/null
-						) || fail
+								git reset --soft "$DETOUL_BRANCH@{1}" &&
+								git commit -m "$2"
+						) >/dev/null 2>&1 || fail
 				fi
 
 				if [ "${1/rebase}" == "$1" ]; then
 						(
-								bash -c "git filter-branch --parent-filter 'cat; echo \"-p $source_branch\"' -f HEAD~..HEAD" >/dev/null 2>&1
-						) || fail
+								bash -c "git filter-branch --parent-filter 'cat; echo \"-p $source_branch\"' -f HEAD~..HEAD"
+						) >/dev/null 2>&1 || fail
 				fi
 		fi
 }
@@ -82,8 +82,8 @@ pick() {
 		else
 				echo "Picking '${command[1]}'..."
 				(
-						git cherry-pick "${command[1]}" >/dev/null 2>&1
-				) || fail
+						git cherry-pick "${command[1]}"
+				) >/dev/null 2>&1 || fail
 		fi
 }
 
