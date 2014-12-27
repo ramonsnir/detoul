@@ -47,10 +47,11 @@ help() {
 if [ $# -lt 1 -o "$1" == "help" ]; then
 		help
 elif [ "$1" == "commands" ]; then
+		echo "cat"
 		echo "help"
-		echo "test"
 		echo "make"
 		echo "push"
+		echo "test"
 		quit
 fi
 
@@ -60,6 +61,11 @@ load_detoul_spec_output="$(load-detoul-spec)"
 if [ "$?" != "0" ]; then
 		echo "$load_detoul_spec_output"
 		fail
+fi
+
+if [ "$1" == "cat" ]; then
+		cat "$DETOUL_TMP/spec"
+		quit
 fi
 
 detoul-base <"$DETOUL_TMP/spec"
