@@ -2,20 +2,7 @@
 
 exit_code="0"
 
-cd "$GIT_WD"
-
-have_uncommitted_changes="$(git status --porcelain | wc -l)"
-if [ "$have_uncommitted_changes" != "0" ]; then
-  git stash -u >/dev/null 2>&1
-fi
-
 quit() {
-  git checkout "$DETOUL_ORIG_BRANCH" >/dev/null 2>&1
-  
-  if [ "$have_uncommitted_changes" != "0" ]; then
-    git stash pop --index >/dev/null 2>&1
-  fi
-  
   exit "$exit_code"
 }
 
