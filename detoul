@@ -71,7 +71,7 @@ save-spec() {
   ) >/dev/null 2>&1
   
   if [ "$have_uncommitted_changes" != "0" ]; then
-    git stash pop >/dev/null 2>&1
+    git stash pop --index >/dev/null 2>&1
   fi
 
   cd - >/dev/null
@@ -160,7 +160,7 @@ case "$1" in
     git checkout "$DETOUL_ORIG_BRANCH" >/dev/null 2>&1
 
     if [ "$have_uncommitted_changes" != "0" ]; then
-      git stash pop >/dev/null 2>&1
+      git stash pop --index >/dev/null 2>&1
     fi
 
     cd - >/dev/null
