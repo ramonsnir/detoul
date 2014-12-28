@@ -55,7 +55,7 @@ Usage:
     detoul (test|make) <release>
     detoul add-to <release> <branch> [--rebase] [--squash|--fixup]
     detoul cat <release>
-    detoul edit <release>
+    detoul edit <release> [--amend]
     detoul push <release>
     detoul help
 ```

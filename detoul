@@ -66,7 +66,7 @@ help() {
   echo "    detoul (test|make) <release>"
   echo "    detoul add-to <release> <branch> [--rebase] [--squash|--fixup]"
   echo "    detoul cat <release>"
-  echo "    detoul edit <release>"
+  echo "    detoul edit <release> [--amend]"
   echo "    detoul push <release>"
   echo "    detoul help"
   quit
@@ -88,7 +88,7 @@ save-spec() {
       (cat "$DETOUL_TMP/spec" | head -n -1 | grep -v "^$" > "$target" || [ 1 -eq 1 ]) &&
       cat "$DETOUL_TMP/spec" | tail -n 1 | tr -d '\n' >> "$target" &&
       git add "$target" &&
-      git commit -m "$1"
+      git commit -m "$1" $commit_opts
   ) >/dev/null 2>&1
   stash-pop
   cd - >/dev/null
@@ -120,6 +120,9 @@ case "$1" in
   options)
     case "$2" in
       create)
+        ;;
+      edit)
+        echo "--amend"
         ;;
       add-to)
         echo "--fixup"
@@ -161,6 +164,7 @@ case "$1" in
     ;;
   edit)
     target="$2"
+    commit_opts="$3"
     load-spec
     if [ "$EDITOR" == "" ]; then
        EDITOR="vi"
