@@ -116,7 +116,7 @@ while read -r line; do
       ;;
     exec)
       echo "Executing '${line/exec /}'..."
-      bash -c "${line/exec /}"
+      bash -c "${line/exec /}" || fail
       ;;
   esac
 done
