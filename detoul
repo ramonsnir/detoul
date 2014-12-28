@@ -101,9 +101,10 @@ case "$1" in
   options)
     case "$2" in
       add-to)
+        echo "--fixup"
+        echo "--message"
         echo "--rebase"
         echo "--squash"
-        echo "--fixup"
         ;;
     esac
     quit
@@ -130,6 +131,7 @@ case "$1" in
     addition="$3"
     op="take"
     mod=""
+    message=""
     shift; shift; shift
     while (($#)); do
       case "$1" in
@@ -139,11 +141,14 @@ case "$1" in
         --squash|--fixup)
           mod="-squash"
           ;;
+        -m|--message)
+          shift
+          message=" $1"
       esac
       shift
     done
     echo "" >> "$DETOUL_TMP/spec"
-    echo -n "$op$mod $addition" >> "$DETOUL_TMP/spec"
+    echo -n "$op$mod $addition$message" >> "$DETOUL_TMP/spec"
     save-spec "added to '$target': '$addition'"
     quit
     ;;
