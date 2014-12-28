@@ -37,7 +37,8 @@ checkout() {
   echo "Checking out '$branch'..."
   (
     git checkout "$branch" &&
-      git checkout -B "$DETOUL_BRANCH"
+      git branch -f "$DETOUL_BRANCH" &&
+      git checkout "$DETOUL_BRANCH"
   ) >/dev/null 2>&1 || fail
   base_branch="$branch"
 }
