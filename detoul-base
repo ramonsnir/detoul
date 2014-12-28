@@ -62,9 +62,13 @@ take() {
     ) >/dev/null 2>&1 || fail
     
     if [ "${1/squash}" != "$1" ]; then
+      message="$2"
+      if [ "$message" == "" ]; then
+        message="$branch"
+      fi
       (
         git reset --soft "$DETOUL_BRANCH@{1}" &&
-          git commit -m "$2"
+          git commit -m "$message"
       ) >/dev/null 2>&1 || fail
     fi
     
@@ -104,13 +108,13 @@ while read -r line; do
       take rebase
       ;;
     rebase-squash)
-      take rebase-squash "$(echo "$line" | sed -e 's/^rebase-squash\s\+[[:graph:]]\+\s\+//')"
+      take rebase-squash "$(echo "$line" | sed -e 's/^rebase-squash\s\+[[:graph:]]\+\s*//')"
       ;;
     take)
       take
       ;;
     take-squash)
-      take squash "$(echo "$line" | sed -e 's/^take-squash\s\+[[:graph:]]\+\s\+//')"
+      take squash "$(echo "$line" | sed -e 's/^take-squash\s\+[[:graph:]]\+\s*//')"
       ;;
     pick)
       pick
