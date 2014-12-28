@@ -172,6 +172,10 @@ if [ "$exit_code" == "0" ]; then
       fail
   esac
 else
+  if [ "$1" == "test" ]; then
+    git rebase --abort >/dev/null 2>&1
+    git checkout "$DETOUL_ORIG_BRANCH" >/dev/null 2>&1
+  fi
   git branch -D "$DETOUL_BRANCH" >/dev/null 2>&1
   echo "Failure."
 fi
