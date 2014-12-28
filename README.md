@@ -14,10 +14,8 @@ I found that during development of a version, people wish to test if their code 
 
 Create your release specification branch:
 ```sh
-git checkout --orphan detoul-spec
-git reset .
-git commit --allow-empty --allow-empty-message -m ""
-git clean -df
+detoul init
+detoul create release-february master
 ```
 
 Release specifications are placed in the `detoul-spec` branch and are named by the file name of the specification file. Let's say we have the following content for the committed `release-february` file in `detoul-spec`:
@@ -44,7 +42,23 @@ This means the branch is good, and we can then push our changes to `detoul-spec`
 
 To actually make the branch (to test it or to use it), we can run `detoul make release-february`.
 
-If your deployment procedured isn't configured to make the latest `detoul` branch, then you can make it and push it in a single command (`detoul push release-february`) and then deploy `release-february`.
+If your deployment procedured isn't configured to make the latest `detoul` branch, then you can make it and push it in a single command (`detoul push release-february`) and then deploy the branch `release-february`.
+
+### detoul help
+
+```
+detoul: a declarative tool for creating integration branches in git
+Usage:
+    detoul init
+    detoul push-specs
+    detoul create <release> [<base_branch>]
+    detoul (test|make) <release>
+    detoul add-to <release> <branch> [--rebase] [--squash|--fixup]
+    detoul cat <release>
+    detoul edit <release>
+    detoul push <release>
+    detoul help
+```
 
 ### rebase vs merge
 

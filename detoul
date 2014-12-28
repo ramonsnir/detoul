@@ -60,7 +60,14 @@ fail() {
 help() {
   echo "detoul: a declarative tool for creating integration branches in git"
   echo "Usage:"
-  echo "    detoul (test|make|push) branch"
+  echo "    detoul init"
+  echo "    detoul push-specs"
+  echo "    detoul create <release> [<base_branch>]"
+  echo "    detoul (test|make) <release>"
+  echo "    detoul add-to <release> <branch> [--rebase] [--squash|--fixup]"
+  echo "    detoul cat <release>"
+  echo "    detoul edit <release>"
+  echo "    detoul push <release>"
   echo "    detoul help"
   quit
 }
