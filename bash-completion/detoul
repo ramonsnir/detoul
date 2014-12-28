@@ -12,7 +12,7 @@ _detoul() {
   elif [ "$(echo "$line" | wc -w)" == "2" -a "$(echo "$line" | grep "\s$" | wc -l)" == "0" ]; then
     _script_commands=$(detoul commands)
   else
-    _script_commands=$(git ls-tree detoul-spec 2>/dev/null | cut -f2)
+    _script_commands=$(git ls-tree detoul-spec --full-tree 2>/dev/null | cut -f2 | grep -v "^\.")
   fi
   local cur prev
   COMPREPLY=()

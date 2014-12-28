@@ -15,6 +15,10 @@ else
     echo "Branch specification file not found."
     exit 1
   fi
-  git show "$spec_hash" | grep -v "^\#" > "$spec"
-  echo "" >> "$spec"
+  git show "$spec_hash" > "$spec"
+fi
+
+if [ "$1" == "filtered" ]; then
+  content="$(cat "$spec")"
+  echo "$content" | grep -v "^\#" > "$spec"
 fi

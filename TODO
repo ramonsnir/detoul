@@ -1,5 +1,6 @@
+* detoul edit (open EDITOR)
+* rebase/take & full/squash options: per repo, per global, per spec
 * rebase/merge conflict resolution support
 * deployment support (Dynamic Yield specific - just need to run make)
 * interactive spec creation
 * octopus-take support?
-* spec in folder support?

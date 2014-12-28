@@ -45,11 +45,35 @@ help() {
 }
 
 load-spec() {
-  local load_detoul_spec_output="$(load-detoul-spec)"
+  local load_detoul_spec_output="$(load-detoul-spec $1)"
   if [ "$?" != "0" ]; then
     echo "$load_detoul_spec_output"
     fail
   fi
+}
+
+save-spec() {
+  cd "$GIT_WD"
+  
+  have_uncommitted_changes="$(git status --porcelain | wc -l)"
+  if [ "$have_uncommitted_changes" != "0" ]; then
+    git stash -u >/dev/null 2>&1
+  fi
+
+  (
+    git checkout detoul-spec &&
+    cat "$DETOUL_TMP/spec" | head -n -1 | grep -v "^$" > "$target" &&
+    cat "$DETOUL_TMP/spec" | tail -n 1 | tr -d '\n' >> "$target" &&
+    git add "$target" &&
+    git commit --allow-empty -m "$1" &&
+    git checkout "$DETOUL_ORIG_BRANCH"
+  ) >/dev/null 2>&1
+  
+  if [ "$have_uncommitted_changes" != "0" ]; then
+    git stash pop >/dev/null 2>&1
+  fi
+
+  cd - >/dev/null
 }
 
 if [ $# -lt 1 ]; then
@@ -65,6 +89,7 @@ case "$1" in
   commands)
     echo "add-to"
     echo "cat"
+    echo "edit"
     echo "help"
     echo "make"
     echo "push"
@@ -84,6 +109,17 @@ case "$1" in
   cat)
     load-spec
     cat "$DETOUL_TMP/spec"
+    echo ""
+    quit
+    ;;
+  edit)
+    target="$2"
+    load-spec
+    if [ "$EDITOR" == "" ]; then
+       EDITOR="vi"
+    fi
+    $EDITOR "$DETOUL_TMP/spec"
+    save-spec "edited '$target'"
     quit
     ;;
   add-to)
@@ -104,32 +140,13 @@ case "$1" in
       esac
       shift
     done
-    echo "$op$mod $addition" >> "$DETOUL_TMP/spec"
-    
-    cd "$GIT_WD"
-    
-    have_uncommitted_changes="$(git status --porcelain | wc -l)"
-    if [ "$have_uncommitted_changes" != "0" ]; then
-      git stash -u >/dev/null 2>&1
-    fi
-    
-    (
-      git checkout detoul-spec
-      cat "$DETOUL_TMP/spec" > "$target"
-      git add "$target"
-      git commit -m "added to '$target': '$addition'"
-      git checkout "$DETOUL_ORIG_BRANCH"
-    ) >/dev/null 2>&1
-    
-    if [ "$have_uncommitted_changes" != "0" ]; then
-      git stash pop >/dev/null 2>&1
-    fi
-    
+    echo -n "$op$mod $addition" >> "$DETOUL_TMP/spec"
+    save-spec "added to '$target': '$addition'"
     quit
     ;;
 esac
 
-load-spec
+load-spec filtered
 
 detoul-base <"$DETOUL_TMP/spec"
 exit_code="$?"
