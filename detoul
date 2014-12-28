@@ -101,6 +101,7 @@ case "$1" in
     echo "add-to"
     echo "cat"
     echo "edit"
+    echo "init"
     echo "help"
     echo "make"
     echo "push"
@@ -117,6 +118,17 @@ case "$1" in
         echo "--squash"
         ;;
     esac
+    quit
+    ;;
+  init)
+    stash
+    (
+      git symbolic-ref HEAD refs/heads/detoul-spec &&
+        rm .git/index &&
+        git clean -fd &&
+        git commit -m "detoul-spec" --allow-empty
+    ) >/dev/null 2>&1
+    stash-pop
     quit
     ;;
   cat)
