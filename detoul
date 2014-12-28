@@ -193,6 +193,7 @@ if [ "$exit_code" == "0" ]; then
       echo "Unknown operation '$1'."
       fail
   esac
+  quit
 else
   if [ "$1" == "test" ]; then
     git rebase --abort >/dev/null 2>&1
@@ -200,5 +201,5 @@ else
   fi
   git branch -D "$DETOUL_BRANCH" >/dev/null 2>&1
   echo "Failure."
+  fail
 fi
-quit
