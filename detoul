@@ -45,7 +45,8 @@ help() {
 }
 
 load-spec() {
-  local load_detoul_spec_output="$(load-detoul-spec $1)"
+  local load_detoul_spec_output
+  load_detoul_spec_output="$(load-detoul-spec $1)"
   if [ "$?" != "0" ]; then
     echo "$load_detoul_spec_output"
     fail
