@@ -16,7 +16,7 @@ export GIT_WD="$(git-pwd)"
 cd "$GIT_WD"
 
 if [ "$GIT_REMOTE" == "" ]; then
-		export GIT_REMOTE="$(git remote | xargs echo | head -n 1)"
+  export GIT_REMOTE="$(git remote | xargs echo | head -n 1)"
 fi
 export DETOUL_ORIG_BRANCH="$(git branch | grep "^*" | cut -c3-)"
 
@@ -26,97 +26,97 @@ cd "$GIT_WD"
 mkdir "$DETOUL_TMP"
 
 quit() {
-		cd "$GIT_WD"
-		rm -fr "$DETOUL_TMP"
-		exit "$exit_code"
+  cd "$GIT_WD"
+  rm -fr "$DETOUL_TMP"
+  exit "$exit_code"
 }
 
 fail() {
-		exit_code="1"
-		quit
+  exit_code="1"
+  quit
 }
 
 help() {
-		echo "detoul: a declarative tool for creating integration branches in git"
-		echo "Usage:"
-		echo "    detoul (test|make|push) branch"
-		echo "    detoul help"
-		quit
+  echo "detoul: a declarative tool for creating integration branches in git"
+  echo "Usage:"
+  echo "    detoul (test|make|push) branch"
+  echo "    detoul help"
+  quit
 }
 
 load-spec() {
-		local load_detoul_spec_output="$(load-detoul-spec)"
-		if [ "$?" != "0" ]; then
-				echo "$load_detoul_spec_output"
-				fail
-		fi
+  local load_detoul_spec_output="$(load-detoul-spec)"
+  if [ "$?" != "0" ]; then
+    echo "$load_detoul_spec_output"
+    fail
+  fi
 }
 
 if [ $# -lt 1 ]; then
-		help
+  help
 fi
 
 export DETOUL_BRANCH="$2"
 
 case "$1" in
-		help)
-				help
-				;;
-		commands)
-				echo "add-to"
-				echo "cat"
-				echo "help"
-				echo "make"
-				echo "push"
-				echo "test"
-				quit
-				;;
-		cat)
-				load-spec
-				cat "$DETOUL_TMP/spec"
-				quit
-				;;
-		add-to)
-				target="$2"
-				load-spec
-				addition="$3"
-				op="take"
-				mod=""
-				shift; shift; shift
-				while (($#)); do
-						case "$1" in
-								--rebase)
-										op="rebase"
-										;;
-								--squash|--fixup)
-										mod="-squash"
-										;;
-						esac
-						shift
-				done
-				echo "$op$mod $addition" >> "$DETOUL_TMP/spec"
-
-				cd "$GIT_WD"
-
-				have_uncommitted_changes="$(git status --porcelain | wc -l)"
-				if [ "$have_uncommitted_changes" != "0" ]; then
-						git stash -u >/dev/null 2>&1
-				fi
-
-				(
-						git checkout detoul-spec
-						cat "$DETOUL_TMP/spec" > "$target"
-						git add "$target"
-						git commit -m "added to '$target': '$addition'"
-						git checkout "$DETOUL_ORIG_BRANCH"
-				) >/dev/null 2>&1
-
-				if [ "$have_uncommitted_changes" != "0" ]; then
-						git stash pop >/dev/null 2>&1
-				fi
-
-				quit
-				;;
+  help)
+    help
+    ;;
+  commands)
+    echo "add-to"
+    echo "cat"
+    echo "help"
+    echo "make"
+    echo "push"
+    echo "test"
+    quit
+    ;;
+  cat)
+    load-spec
+    cat "$DETOUL_TMP/spec"
+    quit
+    ;;
+  add-to)
+    target="$2"
+    load-spec
+    addition="$3"
+    op="take"
+    mod=""
+    shift; shift; shift
+    while (($#)); do
+      case "$1" in
+        --rebase)
+          op="rebase"
+          ;;
+        --squash|--fixup)
+          mod="-squash"
+          ;;
+      esac
+      shift
+    done
+    echo "$op$mod $addition" >> "$DETOUL_TMP/spec"
+    
+    cd "$GIT_WD"
+    
+    have_uncommitted_changes="$(git status --porcelain | wc -l)"
+    if [ "$have_uncommitted_changes" != "0" ]; then
+      git stash -u >/dev/null 2>&1
+    fi
+    
+    (
+      git checkout detoul-spec
+      cat "$DETOUL_TMP/spec" > "$target"
+      git add "$target"
+      git commit -m "added to '$target': '$addition'"
+      git checkout "$DETOUL_ORIG_BRANCH"
+    ) >/dev/null 2>&1
+    
+    if [ "$have_uncommitted_changes" != "0" ]; then
+      git stash pop >/dev/null 2>&1
+    fi
+    
+    quit
+    ;;
 esac
 
 load-spec
@@ -126,26 +126,26 @@ exit_code="$?"
 cd "$GIT_WD"
 
 if [ "$exit_code" == "0" ]; then
-		case "$1" in
-				test)
-						git branch -D "$DETOUL_BRANCH" >/dev/null 2>&1
-						echo "Integration branch succesfully created."
-						;;
-				make)
-						git checkout "$DETOUL_BRANCH" >/dev/null 2>&1
-						;;
-				push)
-						git checkout "$DETOUL_BRANCH" >/dev/null 2>&1
-						git push --set-upstream "$GIT_REMOTE" "$DETOUL_BRANCH" --force
-						git checkout "$DETOUL_ORIG_BRANCH" >/dev/null 2>&1
-						;;
-				*)
-						git branch -D "$DETOUL_BRANCH" >/dev/null 2>&1
-						echo "Unknown operation '$1'."
-						fail
-		esac
+  case "$1" in
+    test)
+      git branch -D "$DETOUL_BRANCH" >/dev/null 2>&1
+      echo "Integration branch succesfully created."
+      ;;
+    make)
+      git checkout "$DETOUL_BRANCH" >/dev/null 2>&1
+      ;;
+    push)
+      git checkout "$DETOUL_BRANCH" >/dev/null 2>&1
+      git push --set-upstream "$GIT_REMOTE" "$DETOUL_BRANCH" --force
+      git checkout "$DETOUL_ORIG_BRANCH" >/dev/null 2>&1
+      ;;
+    *)
+      git branch -D "$DETOUL_BRANCH" >/dev/null 2>&1
+      echo "Unknown operation '$1'."
+      fail
+  esac
 else
-		git branch -D "$DETOUL_BRANCH" >/dev/null 2>&1
-		echo "Failure."
+  git branch -D "$DETOUL_BRANCH" >/dev/null 2>&1
+  echo "Failure."
 fi
 quit
