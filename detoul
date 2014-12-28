@@ -48,7 +48,7 @@ stash-pop() {
 
 quit() {
   cd "$GIT_WD"
-  rm -fr "$DETOUL_TMP"
+  #rm -fr "$DETOUL_TMP"
   exit "$exit_code"
 }
 
@@ -78,10 +78,10 @@ save-spec() {
   stash
   (
     git checkout detoul-spec &&
-    cat "$DETOUL_TMP/spec" | head -n -1 | grep -v "^$" > "$target" &&
-    cat "$DETOUL_TMP/spec" | tail -n 1 | tr -d '\n' >> "$target" &&
-    git add "$target" &&
-    git commit --allow-empty -m "$1"
+      (cat "$DETOUL_TMP/spec" | head -n -1 | grep -v "^$" > "$target" || [ 1 -eq 1 ]) &&
+      cat "$DETOUL_TMP/spec" | tail -n 1 | tr -d '\n' >> "$target" &&
+      git add "$target" &&
+      git commit -m "$1"
   ) >/dev/null 2>&1
   stash-pop
   cd - >/dev/null
@@ -100,6 +100,7 @@ case "$1" in
   commands)
     echo "add-to"
     echo "cat"
+    echo "create"
     echo "edit"
     echo "init"
     echo "help"
@@ -111,6 +112,8 @@ case "$1" in
     ;;
   options)
     case "$2" in
+      create)
+        ;;
       add-to)
         echo "--fixup"
         echo "--message"
@@ -129,6 +132,18 @@ case "$1" in
         git commit -m "detoul-spec" --allow-empty
     ) >/dev/null 2>&1
     stash-pop
+    quit
+    ;;
+  create)
+    target="$2"
+    base_branch="$3"
+    if [ "$base_branch" == "" ]; then
+      touch "$DETOUL_TMP/spec"
+      save-spec "created '$target'"
+    else
+      echo -n "checkout $base_branch" > "$DETOUL_TMP/spec"
+      save-spec "created '$target' based on '$base_branch'"
+    fi
     quit
     ;;
   cat)
