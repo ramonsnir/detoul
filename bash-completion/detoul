@@ -22,4 +22,4 @@ _detoul() {
   return 0
 }
 
-complete -F _detoul -o nospace detoul
+complete -F _detoul detoul
