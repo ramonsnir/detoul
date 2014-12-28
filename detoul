@@ -71,6 +71,16 @@ case "$1" in
     echo "test"
     quit
     ;;
+  options)
+    case "$2" in
+      add-to)
+        echo "--rebase"
+        echo "--squash"
+        echo "--fixup"
+        ;;
+    esac
+    quit
+    ;;
   cat)
     load-spec
     cat "$DETOUL_TMP/spec"

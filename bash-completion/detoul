@@ -3,8 +3,10 @@
 _detoul() {
   local line="${COMP_LINE}"
   
-  if [ "$(echo "$line" | grep "^detoul\s\+add-to\s\+[[:graph:]]\+\s" | wc -l)" != "0" ]; then
-    _script_commands=$(git branch -a | sed -e 's/remotes\/[[:alnum:]]\+\///g' | cut -c3- | sort | uniq | xargs)
+  if [ "$(echo "$line" | grep "^detoul\s\+add-to\s\+[[:graph:]]\+\s\+[[:graph:]]\+\s" | wc -l)" != "0" ]; then
+    _script_commands=$(detoul options add-to)
+  elif [ "$(echo "$line" | grep "^detoul\s\+add-to\s\+[[:graph:]]\+\s" | wc -l)" != "0" ]; then
+    _script_commands=$(git branch -a | grep -v "\->" | sed -e 's/remotes\/[[:alnum:]]\+\///g' | cut -c3- | sort | uniq | xargs)
   elif [ "$(echo "$line" | wc -w)" == "1" ]; then
     _script_commands=$(detoul commands)
   elif [ "$(echo "$line" | wc -w)" == "2" -a "$(echo "$line" | grep "\s$" | wc -l)" == "0" ]; then
