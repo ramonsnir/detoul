@@ -93,6 +93,7 @@ case "$1" in
     echo "help"
     echo "make"
     echo "push"
+    echo "push-specs"
     echo "test"
     quit
     ;;
@@ -140,8 +141,28 @@ case "$1" in
       esac
       shift
     done
+    echo "" >> "$DETOUL_TMP/spec"
     echo -n "$op$mod $addition" >> "$DETOUL_TMP/spec"
     save-spec "added to '$target': '$addition'"
+    quit
+    ;;
+  push-specs)
+    cd "$GIT_WD"
+
+    have_uncommitted_changes="$(git status --porcelain | wc -l)"
+    if [ "$have_uncommitted_changes" != "0" ]; then
+      git stash -u >/dev/null 2>&1
+    fi
+
+    git checkout detoul-spec >/dev/null 2>&1 &&
+      git push -f
+    git checkout "$DETOUL_ORIG_BRANCH" >/dev/null 2>&1
+
+    if [ "$have_uncommitted_changes" != "0" ]; then
+      git stash pop >/dev/null 2>&1
+    fi
+
+    cd - >/dev/null
     quit
     ;;
 esac
