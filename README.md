@@ -50,7 +50,8 @@ If your deployment procedured isn't configured to make the latest `detoul` branc
 detoul: a declarative tool for creating integration branches in git
 Usage:
     detoul init
-    detoul push-specs
+    detoul specs-push
+    detoul specs-pull
     detoul create <release> [<base_branch>]
     detoul (test|make) <release>
     detoul add-to <release> <branch> [--rebase] [--squash|--fixup]

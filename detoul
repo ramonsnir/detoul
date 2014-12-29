@@ -61,7 +61,8 @@ help() {
   echo "detoul: a declarative tool for creating integration branches in git"
   echo "Usage:"
   echo "    detoul init"
-  echo "    detoul push-specs"
+  echo "    detoul specs-push"
+  echo "    detoul specs-pull"
   echo "    detoul create <release> [<base_branch>]"
   echo "    detoul (test|make) <release>"
   echo "    detoul add-to <release> <branch> [--rebase] [--squash|--fixup]"
@@ -113,7 +114,8 @@ case "$1" in
     echo "help"
     echo "make"
     echo "push"
-    echo "push-specs"
+    echo "specs-pull"
+    echo "specs-push"
     echo "test"
     quit
     ;;
@@ -200,10 +202,18 @@ case "$1" in
     save-spec "added to '$target': '$addition'"
     quit
     ;;
-  push-specs)
+  specs-push)
     stash
     git checkout detoul-spec >/dev/null 2>&1 &&
       git push -f
+    stash-pop
+    cd - >/dev/null
+    quit
+    ;;
+  specs-pull)
+    stash
+    git checkout detoul-spec >/dev/null 2>&1 &&
+      git pull
     stash-pop
     cd - >/dev/null
     quit
