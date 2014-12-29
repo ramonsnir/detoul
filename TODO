@@ -1,4 +1,16 @@
-* rebase/take & full/squash options: per repo, per global, per spec
 * rebase/merge conflict resolution support
 * interactive spec creation - going well :)
 * octopus-take support?
+* detoul specs-push --force
+* detoul specs-pull --force
+* colors
+* hints, warnings and are-you-sure's
+* no checkout in take
+* better options definition
+* config: per repo, per global, per spec
+* Arch package
+* RHEL package
+* Debian package
+* Windows installation
+* Mac installation?
+* Unit tests
