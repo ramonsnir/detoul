@@ -1,5 +1,14 @@
 #!/bin/bash
 
+if [ -t 1 ]; then
+  remove_colors="cat"
+else
+  remove_colors=$(cat <<"EOF"
+sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mK]//g"
+EOF
+               )
+fi
+
 exit_code="0"
 
 # http://stackoverflow.com/questions/918886/how-do-i-split-a-string-on-a-delimiter-in-bash
@@ -77,7 +86,7 @@ load-spec() {
   local load_detoul_spec_output
   load_detoul_spec_output="$(load-detoul-spec $1)"
   if [ "$?" != "0" ]; then
-    echo "$load_detoul_spec_output"
+    echo -e "$load_detoul_spec_output"
     fail
   fi
 }
@@ -95,167 +104,171 @@ save-spec() {
   cd - >/dev/null
 }
 
-if [ $# -lt 1 ]; then
-  help
-fi
+((
 
-export DETOUL_BRANCH="$2"
-
-case "$1" in
-  help)
+  if [ $# -lt 1 ]; then
     help
-    ;;
-  commands)
-    echo "add-to"
-    echo "cat"
-    echo "create"
-    echo "edit"
-    echo "init"
-    echo "help"
-    echo "make"
-    echo "push"
-    echo "specs-pull"
-    echo "specs-push"
-    echo "test"
-    quit
-    ;;
-  options)
-    case "$2" in
-      create)
+  fi
+
+  export DETOUL_BRANCH="$2"
+
+  case "$1" in
+    help)
+      help
+      ;;
+    commands)
+      echo "add-to"
+      echo "cat"
+      echo "create"
+      echo "edit"
+      echo "init"
+      echo "help"
+      echo "make"
+      echo "push"
+      echo "specs-pull"
+      echo "specs-push"
+      echo "test"
+      quit
+      ;;
+    options)
+      case "$2" in
+        create)
         ;;
-      edit)
-        echo "--amend"
+        edit)
+          echo "--amend"
+          ;;
+        add-to)
+          echo "--fixup"
+          echo "--message"
+          echo "--rebase"
+          echo "--squash"
+          ;;
+      esac
+      quit
+      ;;
+    init)
+      stash
+      (
+        git symbolic-ref HEAD refs/heads/detoul-spec &&
+          rm .git/index &&
+          git clean -fd &&
+          git commit -m "detoul-spec" --allow-empty
+      ) >/dev/null 2>&1
+      stash-pop
+      quit
+      ;;
+    create)
+      target="$2"
+      base_branch="$3"
+      if [ "$base_branch" == "" ]; then
+        touch "$DETOUL_TMP/spec"
+        save-spec "created '$target'"
+      else
+        echo -n "checkout $base_branch" > "$DETOUL_TMP/spec"
+        save-spec "created '$target' based on '$base_branch'"
+      fi
+      quit
+      ;;
+    cat)
+      load-spec
+      cat "$DETOUL_TMP/spec"
+      echo
+      quit
+      ;;
+    edit)
+      target="$2"
+      commit_opts="$3"
+      load-spec
+      if [ "$EDITOR" == "" ]; then
+        EDITOR="vi"
+      fi
+      $EDITOR "$DETOUL_TMP/spec"
+      save-spec "edited '$target'"
+      quit
+      ;;
+    add-to)
+      target="$2"
+      load-spec
+      addition="$3"
+      op="take"
+      mod=""
+      message=""
+      shift; shift; shift
+      while (($#)); do
+        case "$1" in
+          --rebase)
+            op="rebase"
+            ;;
+          --squash|--fixup)
+            mod="-squash"
+            ;;
+          -m|--message)
+            shift
+            message=" $1"
+        esac
+        shift
+      done
+      echo "" >> "$DETOUL_TMP/spec"
+      echo -n "$op$mod $addition$message" >> "$DETOUL_TMP/spec"
+      save-spec "added to '$target': '$addition'"
+      quit
+      ;;
+    specs-push)
+      stash
+      git checkout detoul-spec >/dev/null 2>&1 &&
+        git push -f
+      stash-pop
+      cd - >/dev/null
+      quit
+      ;;
+    specs-pull)
+      stash
+      git checkout detoul-spec >/dev/null 2>&1 &&
+        git pull
+      stash-pop
+      cd - >/dev/null
+      quit
+      ;;
+  esac
+
+  load-spec filtered
+
+  stash
+  detoul-base <"$DETOUL_TMP/spec"
+  exit_code="$?"
+  stash-pop
+
+  cd "$GIT_WD"
+
+  if [ "$exit_code" == "0" ]; then
+    case "$1" in
+      test)
+        git branch -D "$DETOUL_BRANCH" >/dev/null 2>&1
+        echo -e "\e[32mIntegration branch succesfully created.\e[0m"
         ;;
-      add-to)
-        echo "--fixup"
-        echo "--message"
-        echo "--rebase"
-        echo "--squash"
+      make)
+        git checkout "$DETOUL_BRANCH" >/dev/null 2>&1
         ;;
+      push)
+        git checkout "$DETOUL_BRANCH" >/dev/null 2>&1
+        git push --set-upstream "$GIT_REMOTE" "$DETOUL_BRANCH" --force
+        git checkout "$DETOUL_ORIG_BRANCH" >/dev/null 2>&1
+        ;;
+      *)
+        git branch -D "$DETOUL_BRANCH" >/dev/null 2>&1
+        echo -e "\e[31mUnknown operation '$1'.\e[0m"
+        fail
     esac
     quit
-    ;;
-  init)
-    stash
-    (
-      git symbolic-ref HEAD refs/heads/detoul-spec &&
-        rm .git/index &&
-        git clean -fd &&
-        git commit -m "detoul-spec" --allow-empty
-    ) >/dev/null 2>&1
-    stash-pop
-    quit
-    ;;
-  create)
-    target="$2"
-    base_branch="$3"
-    if [ "$base_branch" == "" ]; then
-      touch "$DETOUL_TMP/spec"
-      save-spec "created '$target'"
-    else
-      echo -n "checkout $base_branch" > "$DETOUL_TMP/spec"
-      save-spec "created '$target' based on '$base_branch'"
-    fi
-    quit
-    ;;
-  cat)
-    load-spec
-    cat "$DETOUL_TMP/spec"
-    echo ""
-    quit
-    ;;
-  edit)
-    target="$2"
-    commit_opts="$3"
-    load-spec
-    if [ "$EDITOR" == "" ]; then
-       EDITOR="vi"
-    fi
-    $EDITOR "$DETOUL_TMP/spec"
-    save-spec "edited '$target'"
-    quit
-    ;;
-  add-to)
-    target="$2"
-    load-spec
-    addition="$3"
-    op="take"
-    mod=""
-    message=""
-    shift; shift; shift
-    while (($#)); do
-      case "$1" in
-        --rebase)
-          op="rebase"
-          ;;
-        --squash|--fixup)
-          mod="-squash"
-          ;;
-        -m|--message)
-          shift
-          message=" $1"
-      esac
-      shift
-    done
-    echo "" >> "$DETOUL_TMP/spec"
-    echo -n "$op$mod $addition$message" >> "$DETOUL_TMP/spec"
-    save-spec "added to '$target': '$addition'"
-    quit
-    ;;
-  specs-push)
-    stash
-    git checkout detoul-spec >/dev/null 2>&1 &&
-      git push -f
-    stash-pop
-    cd - >/dev/null
-    quit
-    ;;
-  specs-pull)
-    stash
-    git checkout detoul-spec >/dev/null 2>&1 &&
-      git pull
-    stash-pop
-    cd - >/dev/null
-    quit
-    ;;
-esac
-
-load-spec filtered
-
-stash
-detoul-base <"$DETOUL_TMP/spec"
-exit_code="$?"
-stash-pop
-
-cd "$GIT_WD"
-
-if [ "$exit_code" == "0" ]; then
-  case "$1" in
-    test)
-      git branch -D "$DETOUL_BRANCH" >/dev/null 2>&1
-      echo "Integration branch succesfully created."
-      ;;
-    make)
-      git checkout "$DETOUL_BRANCH" >/dev/null 2>&1
-      ;;
-    push)
-      git checkout "$DETOUL_BRANCH" >/dev/null 2>&1
-      git push --set-upstream "$GIT_REMOTE" "$DETOUL_BRANCH" --force
+  else
+    if [ "$1" == "test" ]; then
+      git rebase --abort >/dev/null 2>&1
       git checkout "$DETOUL_ORIG_BRANCH" >/dev/null 2>&1
-      ;;
-    *)
-      git branch -D "$DETOUL_BRANCH" >/dev/null 2>&1
-      echo "Unknown operation '$1'."
-      fail
-  esac
-  quit
-else
-  if [ "$1" == "test" ]; then
-    git rebase --abort >/dev/null 2>&1
-    git checkout "$DETOUL_ORIG_BRANCH" >/dev/null 2>&1
-    stash-pop
+      stash-pop
+    fi
+    git branch -D "$DETOUL_BRANCH" >/dev/null 2>&1
+    echo -e "\e[31mFailure.\e[0m"
+    fail
   fi
-  git branch -D "$DETOUL_BRANCH" >/dev/null 2>&1
-  echo "Failure."
-  fail
-fi
+
+) 2>&1 1>&3 | bash -c "$remove_colors" 1>&2) 3>&1 | bash -c "$remove_colors"

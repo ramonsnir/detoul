@@ -3,7 +3,7 @@
 * octopus-take support?
 * detoul specs-push --force
 * detoul specs-pull --force
-* colors
+* colorize spec in `detoul cat`
 * hints, warnings and are-you-sure's
 * no checkout in take
 * better options definition

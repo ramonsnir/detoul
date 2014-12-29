@@ -1,6 +1,7 @@
 #!/bin/bash
 
 exit_code="0"
+first_command="1"
 
 quit() {
   exit "$exit_code"
@@ -21,7 +22,13 @@ autocomplete() {
 }
 
 checkout() {
-  echo "Checking out '$branch'..."
+  if [ "$first_command" == "1" ]; then
+    color="\e[0m"
+    first_command=0
+  else
+    color="\e[91m"
+  fi
+  echo -e "${color}Checking out\e[0m '\e[92m$branch\e[0m'..."
   (
     git checkout "$branch" &&
       git branch -f "$DETOUL_BRANCH" &&
@@ -35,9 +42,9 @@ take() {
     checkout
   else
     if [ "$1" == "" ]; then
-      echo "Taking '$branch'..."
+      echo -e "Taking '\e[92m$branch\e[0m'..."
     else
-      echo "Taking '$branch' ($1)..."
+      echo -e "Taking '\e[92m$branch\e[0m' (\e[96m$1\e[0m)..."
     fi
     source_branch="$(git show-ref "$branch" | cut -d' ' -f1 | head -n 1)"
     (
@@ -72,7 +79,7 @@ pick() {
     branch="${command[1]}"
     checkout
   else
-    echo "Picking '${command[1]}'..."
+    echo -e "Picking '\e[92m${command[1]}\e[0m'..."
     (
       git cherry-pick "${command[1]}"
     ) >/dev/null 2>&1 || fail
@@ -107,7 +114,7 @@ while read -r line; do
       pick
       ;;
     exec)
-      echo "Executing '${line/exec /}'..."
+      echo -e "\e[91mExecuting\e[0m '\e[92m${line/exec /}\e[0m'..."
       bash -c "${line/exec /}" || fail
       ;;
   esac
