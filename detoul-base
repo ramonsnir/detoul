@@ -29,8 +29,13 @@ checkout() {
     color="\e[91m"
   fi
   echo -e "${color}Checking out\e[0m '\e[92m$branch\e[0m'..."
+  if ( (git branch ; git tag) | grep -q "\b${branch}$" ); then
+    checkout_branch="$branch"
+  else
+    checkout_branch="-b $branch $(git branch -a | grep "/${branch}$" | cut -d'/' -f2-3)"
+  fi
   (
-    git checkout "$branch" &&
+    git checkout $checkout_branch &&
       git branch -f "$DETOUL_BRANCH" &&
       git checkout "$DETOUL_BRANCH"
   ) >/dev/null 2>&1 || fail
