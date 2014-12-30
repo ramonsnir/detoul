@@ -3,7 +3,7 @@
 spec="$DETOUL_TMP/spec"
 rm -f "$spec"
 
-if [ "$(echo "$DETOUL_BRANCH" | grep -P "^detoul-.+" | wc -l)" == "1" ]; then
+if (echo "$DETOUL_BRANCH" | grep -q -P "^detoul-.+"); then
   branches="$(echo "$DETOUL_BRANCH" | sed -e 's/-\?detoul-/ /g')"
   for branch in $branches; do
     echo "take $branch" >> "$spec"
