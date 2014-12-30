@@ -25,7 +25,7 @@ mark-execs() {
 }
 
 mark-squash-commits-messages() {
-  regex "s/^(\s*(?:take|rebase)-squash\s+${graph_not_comment}+\s+)((?:(?!#)\N)+)/\1\\\e[37m\2\\\e[0m/g"
+  regex "s/^(\s*(?:take|rebase)-squash\s+${graph_not_comment}+\s+)((?:(?!#)\N\{\})+)/\1\\\e[37m\2\\\e[0m/g"
 }
 
 mark-unsafe-checkouts |
