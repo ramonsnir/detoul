@@ -57,7 +57,7 @@ stash-pop() {
 
 quit() {
   cd "$GIT_WD"
-  rm -fr "$DETOUL_TMP"
+  echo "$exit_code" >"$DETOUL_TMP/exitcode"
   exit "$exit_code"
 }
 
@@ -86,7 +86,7 @@ load-spec() {
   local load_detoul_spec_output
   load_detoul_spec_output="$(load-detoul-spec $1)"
   if [ "$?" != "0" ]; then
-    echo -e "$load_detoul_spec_output"
+    echo -e "$load_detoul_spec_output" >&2
     fail
   fi
 }
@@ -255,7 +255,7 @@ save-spec() {
         ;;
       *)
         git branch -D "$DETOUL_BRANCH" >/dev/null 2>&1
-        echo -e "\e[31mUnknown operation '$1'.\e[0m"
+        echo -e "\e[31mUnknown operation '$1'.\e[0m" >&2
         fail
     esac
     quit
@@ -266,8 +266,12 @@ save-spec() {
       stash-pop
     fi
     git branch -D "$DETOUL_BRANCH" >/dev/null 2>&1
-    echo -e "\e[31mFailure.\e[0m"
+    echo -e "\e[31mFailure.\e[0m" >&2
     fail
   fi
 
 ) 2>&1 1>&3 | bash -c "$remove_colors" 1>&2) 3>&1 | bash -c "$remove_colors"
+
+exit_code="$(cat "$DETOUL_TMP/exitcode")"
+rm -fr "$DETOUL_TMP"
+exit "$exit_code"
