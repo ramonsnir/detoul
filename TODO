@@ -1,15 +1,15 @@
-* rebase/merge conflict resolution support
-* interactive spec creation - going well :)
-* octopus-take support?
-* detoul specs-push --force
-* detoul specs-pull --force
-* hints, warnings and are-you-sure's
-* no checkout in take
-* better options definition
-* config: per repo, per global, per spec
-* Arch package
-* RHEL package
-* Debian package
-* Windows installation
-* Mac installation?
-* Unit tests
+ 1 Windows installation
+ 2 rebase/merge conflict resolution support
+ * Arch package
+ * Unit tests
+ * better options definition
+ * detoul specs-push --force
+ * detoul specs-pull --force
+ * no checkout in take
+ * hints, warnings and are-you-sure's
+ * config: per repo, per global, per spec
+-5 RHEL package
+-4 Debian package
+-3 interactive spec creation - going well :)
+-2 octopus-take support?
+-1 Mac installation?
