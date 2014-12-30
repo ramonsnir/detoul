@@ -19,5 +19,5 @@ fi
 
 if [ "$1" == "filtered" ]; then
   content="$(cat "$spec")"
-  echo "$content" | grep -v "^\#" > "$spec"
+  echo "$content" | sed -e "s/\#.*$//g" | grep -vi "^$" > "$spec"
 fi
