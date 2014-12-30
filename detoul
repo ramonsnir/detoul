@@ -57,7 +57,7 @@ stash-pop() {
 
 quit() {
   cd "$GIT_WD"
-  #rm -fr "$DETOUL_TMP"
+  rm -fr "$DETOUL_TMP"
   exit "$exit_code"
 }
 
