@@ -44,6 +44,24 @@ To actually make the branch (to test it or to use it), we can run `detoul make r
 
 If your deployment procedured isn't configured to make the latest `detoul` branch, then you can make it and push it in a single command (`detoul push release-february`) and then deploy the branch `release-february`.
 
+### Installation
+
+1. `git clone https://github.com/ramonsnir/detoul`
+2. Bring `detoul` into the path either by: editing your `~/.bashrc` adding `export PATH="$PATH:<path-to-cloned-repo>"`; or by symlinking it from `/usr/local/bin`.
+3. Add to your `~/.bashrc` a line like `. <path-to-cloned-repo>/bash-completion/detoul` (for auto-completion support).
+
+I plan to create (and maintain) packages for ArchLinux/Debian/RHEL and an installer for Windows.
+
+### Requirements
+
+Until `detoul` has a good test suite, this list should be taken with a grain of salt.
+
+* a Linux-compatible operating system with a Bourne shell (bash)
+* the perl5 interpreter
+* git 1.7+ (developed with git 2.2.1, but also tested with a Centos 6.5 machine with git 1.7.1)
+
+A Windows machine with Cygwin bash (MINGW not tested) could use `detoul` too (note that perl is available as a Cygwin package). The colorized output in Cygwin has less colors (as it supports fewer colors than most terminal emulators), but that shouldn't bother users too much. If it does, then it is probably time for you to find out that Cygwin comes with Mintty (which is a pretty good terminal emulator - much better than the Windows command prompt) and can also work with xterm (which is available as a Cygwin package).
+
 ### detoul help
 
 ```
