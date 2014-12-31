@@ -14,12 +14,18 @@ fail() {
 
 # does nothing if $1 isn't a detoul spec name
 make-detoul-dependency() {
-  (
+  exit_code_file="$DETOUL_TMP/intexitcode"
+  echo "1" >"$exit_code_file"
+  ((
     export DETOUL_COLOR_ALWAYS="1"
-    detoul cat "$1" >/dev/null 2>&1 &&
+    (detoul cat "$1" >/dev/null 2>&1 || (echo "0" >"$exit_code_file" && exit 1)) &&
       echo -e "Making spec '\e[92m$1\e[0m...'" &&
-      detoul make "$1"
-  ) | sed -e '1!s/^/> /g'
+      detoul make "$1" &&
+      echo "0" >"$exit_code_file"
+  ) 2>&1 1>&3 | sed -e 's/^/> /g') 3>&1 | sed -e '1!s/^\([^>]\)/> \1/g'
+  exit_code="$(cat "$exit_code_file")"
+  rm "$exit_code_file"
+  exit "$exit_code"
 }
 
 autocomplete() {
@@ -108,7 +114,7 @@ while read -r line; do
     continue
   fi
   command=($line)
-  make-detoul-dependency "${command[1]//\*/.*}"
+  (make-detoul-dependency "${command[1]//\*/.*}") || fail
   branch="$(autocomplete "${command[1]//\*/.*}")"
   case "${command[0]}" in
     checkout)
@@ -131,6 +137,7 @@ while read -r line; do
       ;;
     exec)
       echo -e "\e[91mExecuting\e[0m '\e[92m${line/exec /}\e[0m'..."
+      cd "$GIT_WD"
       bash -c "${line/exec /}" || fail
       ;;
   esac
