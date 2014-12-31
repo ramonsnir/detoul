@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ -t 1 ]; then
+if [ -t 1 -o "$DETOUL_COLOR_ALWAYS" == "1" ]; then
   remove_colors="cat"
 else
   remove_colors=$(cat <<"EOF"

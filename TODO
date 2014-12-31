@@ -1,7 +1,6 @@
  0 BUG `detoul edit` (if there was a change) ruins the shell...
  1 Windows installation
  2 rebase/merge conflict resolution support
- * allow take/rebase on detoul specs (detoul within a detoul)
  * list detoul dependencies (for packages, and general documentation)
  * Arch package
  * Unit tests

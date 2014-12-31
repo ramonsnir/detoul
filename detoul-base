@@ -12,6 +12,16 @@ fail() {
   quit
 }
 
+# does nothing if $1 isn't a detoul spec name
+make-detoul-dependency() {
+  (
+    export DETOUL_COLOR_ALWAYS="1"
+    detoul cat "$1" >/dev/null 2>&1 &&
+      echo -e "Making spec '\e[92m$1\e[0m...'" &&
+      detoul make "$1"
+  ) | sed -e '1!s/^/> /g'
+}
+
 autocomplete() {
   branch_name="$(git branch -a | sed -e 's/remotes\/[[:alnum:]]\+\///g' | cut -c3- | grep "^$1" | head -n 1)"
   if [ "$branch_name" == "" ]; then
@@ -98,6 +108,7 @@ while read -r line; do
     continue
   fi
   command=($line)
+  make-detoul-dependency "${command[1]//\*/.*}"
   branch="$(autocomplete "${command[1]//\*/.*}")"
   case "${command[0]}" in
     checkout)
