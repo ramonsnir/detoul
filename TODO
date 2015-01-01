@@ -1,6 +1,7 @@
  0 `detoul edit` (if there was a change) takes time. There should be a notice.
  1 rebase/merge conflict resolution support
  2 archive old spec files
+ * deterministic commit hashes?
  * list detoul minimal dependencies (for packages, and general documentation)
  * Arch package
  * proper Windows installer
