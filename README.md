@@ -1,6 +1,6 @@
 # Detoul
 
-Ramon Snir (c) 2014 [MIT License]
+Ramon Snir (c) 2015 [MIT License]
 
 A declarative tool for creating integration branches in git
 
