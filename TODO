@@ -1,7 +1,9 @@
- 0 `detoul edit` (if there was a change) takes time. There should be a notice.
- 1 rebase/merge conflict resolution support
- 2 archive old spec files
- * deterministic commit hashes?
+ 0 `detoul edit` (if there was a change) takes time. fix it.
+ 1 check that branch/ref exists
+ 2 rename all take's/rebase's
+ 3 deterministic commit hashes?
+ * hints, warnings and are-you-sure's
+ * archive old spec files
  * list detoul minimal dependencies (for packages, and general documentation)
  * Arch package
  * proper Windows installer
@@ -10,7 +12,6 @@
  * detoul specs-push --force
  * detoul specs-pull --force
  * no checkout in take
- * hints, warnings and are-you-sure's
  * config: per repo, per global, per spec
 -5 RHEL package
 -4 Debian package

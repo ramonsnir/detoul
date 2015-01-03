@@ -30,9 +30,14 @@ fi
 export DETOUL_ORIG_BRANCH="$(git branch | grep "^*" | cut -c3-)"
 
 export DETOUL_TMP=".git/detoul.$(echo "$RANDOM$RANDOM" | git hash-object --stdin)"
-
-cd "$GIT_WD"
 mkdir "$DETOUL_TMP"
+
+export DETOUL_ORIG_RERERE_ENABLE="$(git config --local rerere.enabled)"
+export DETOUL_ORIG_RERERE_AUTOUPDATE="$(git config --local rerere.autoupdate)"
+git config rerere.enabled true
+git config rerere.autoupdate true
+mkdir -p .git/rr-cache
+mv .git/rr-cache "$DETOUL_TMP/orig-rr-cache" 2>/dev/null
 
 stash() {
   cd "$GIT_WD"
@@ -231,8 +236,9 @@ save-spec() {
   esac
 
   load-spec filtered
-
+  
   stash
+
   detoul-base <"$DETOUL_TMP/spec"
   exit_code="$?"
   stash-pop
@@ -273,5 +279,26 @@ save-spec() {
 ) 2>&1 1>&3 | bash -c "$remove_colors" 1>&2) 3>&1 | bash -c "$remove_colors"
 
 exit_code="$(cat "$DETOUL_TMP/exitcode")"
+if [ "$DETOUL_ORIG_RERERE_ENABLE" == "" ]; then
+  git config --unset rerere.enabled
+else
+  git config rerere.enabled "$DETOUL_ORIG_RERERE_ENABLE"
+fi
+if [ "$DETOUL_ORIG_RERERE_AUTOUPDATE" == "" ]; then
+  git config --unset rerere.autoupdate
+else
+  git config rerere.autoupdate "$DETOUL_ORIG_RERERE_AUTOUPDATE"
+fi
+
+# copy unresolved conflicts to the original rr-cache
+if [ "$1" != "test" -a -f .git/MERGE_RR ]; then
+  mkdir -p .git/rr-cache
+  for conflict in $(cat .git/MERGE_RR | tr '\0' '\n' | cut -f1); do
+    cp -R ".git/rr-cache/$conflict" "$DETOUL_TMP/orig-rr-cache/$conflict" 2>/dev/null
+  done
+fi
+
+rm -fr .git/rr-cache >/dev/null 2>&1
+mv "$DETOUL_TMP/orig-rr-cache" .git/rr-cache 2>/dev/null
 rm -fr "$DETOUL_TMP"
 exit "$exit_code"
