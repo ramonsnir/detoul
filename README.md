@@ -72,7 +72,7 @@ Usage:
     detoul specs-pull
     detoul create <release> [<base_branch>]
     detoul (test|make) <release>
-    detoul add-to <release> <branch> [--rebase] [--squash|--fixup]
+    detoul add-to <release> <branch> [--squash] [--merge] [--message "<message>"]
     detoul cat <release>
     detoul edit <release> [--amend]
     detoul push <release>
@@ -81,9 +81,9 @@ Usage:
 
 ### rebase vs merge
 
-The default `take` and `take-squash` actions behave a lot like `git-merge` and will play nicely with all merge-detection methods (so Github and Bitbucket will automatically mark relevant pull requests as merged). The difference between the two is in the first-parent commit ancestry, but the whole branch is still accessible through the second parent of the last commit (or only commit if using `take-squash`).
+The default `take` and `take-squash` actions behave a lot like `git-rebase` and so will not play nicely with all merge-detection methods (so Github and Bitbucket will not automatically mark relevant pull requests as merged).
 
-If you don't like this behavior, you can instead use `rebase` and `rebase-squash` which leave no trace of the original branch.
+If you don't like this behavior, you can instead use `take-merge` (or `detoul add-to <release> <branch> --merge`) which will keep the source branch an ancestor of the target branch.
 
 ### Why in bash?
 

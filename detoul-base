@@ -110,7 +110,7 @@ take() {
       if [ "$1" == "" ]; then
         echo -e "Taking '\e[92m$branch\e[0m'..."
       else
-        echo -e "Taking '\e[92m$branch\e[0m' (\e[96m$1\e[0m)..."
+        echo -e "Taking '\e[92m$branch\e[0m' (\e[96m$(echo "$1" | cut -d'-' -f1)\e[0m)..."
       fi
     elif [ "$2" == "refresh" ]; then
       echo -e "\e[93mAttempting to refresh rerere cache...\e[0m" >&2
@@ -137,7 +137,11 @@ take() {
     if [ "${1/squash}" != "$1" ]; then
       message="$2"
       if [ "$message" == "" ]; then
-        message="$branch"
+        if [ "${1/merge}" != "$1" ]; then
+          message="$(git log HEAD~1..HEAD --pretty=format:%s)"
+        else
+          message="$branch"
+        fi
       fi
       (
         git reset --soft "$DETOUL_BRANCH@{1}" &&
@@ -145,7 +149,7 @@ take() {
       ) >/dev/null 2>&1 || fail
     fi
     
-    if [ "${1/rebase}" == "$1" ]; then
+    if [ "${1/merge}" != "$1" ]; then
       (
         bash -c "git filter-branch --parent-filter 'cat; echo \"-p $source_branch\"' -f HEAD~..HEAD"
       ) >/dev/null 2>&1 || fail
@@ -182,14 +186,11 @@ while read -r line; do
     checkout)
       checkout
       ;;
-    rebase)
-      take rebase
-      ;;
-    rebase-squash)
-      take rebase-squash "$(echo "$line" | sed -e 's/^rebase-squash\s\+[[:graph:]]\+\s*//')"
-      ;;
     take)
       take
+      ;;
+    take-merge)
+      take merge-squash "$(echo "$line" | sed -e 's/^take-merge\s\+[[:graph:]]\+\s*//')"
       ;;
     take-squash)
       take squash "$(echo "$line" | sed -e 's/^take-squash\s\+[[:graph:]]\+\s*//')"
@@ -201,6 +202,10 @@ while read -r line; do
       echo -e "\e[91mExecuting\e[0m '\e[92m${line/exec /}\e[0m'..."
       cd "$GIT_WD"
       bash -c "${line/exec /}" || fail
+      ;;
+    *)
+      echo -e "\e[31mUnknown directive '${command[0]}'.\e[0m" >&2
+      fail
       ;;
   esac
 done

@@ -79,7 +79,7 @@ help() {
   echo "    detoul specs-pull"
   echo "    detoul create <release> [<base_branch>]"
   echo "    detoul (test|make) <release>"
-  echo "    detoul add-to <release> <branch> [--rebase] [--squash|--fixup]"
+  echo "    detoul add-to <release> <branch> [--squash] [--merge] [--message \"<message>\"]"
   echo "    detoul cat <release>"
   echo "    detoul edit <release> [--amend]"
   echo "    detoul push <release>"
@@ -143,9 +143,8 @@ save-spec() {
           echo "--amend"
           ;;
         add-to)
-          echo "--fixup"
+          echo "--merge"
           echo "--message"
-          echo "--rebase"
           echo "--squash"
           ;;
       esac
@@ -200,10 +199,10 @@ save-spec() {
       shift; shift; shift
       while (($#)); do
         case "$1" in
-          --rebase)
-            op="rebase"
+          --merge)
+            mod="-merge"
             ;;
-          --squash|--fixup)
+          --squash)
             mod="-squash"
             ;;
           -m|--message)
