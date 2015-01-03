@@ -294,11 +294,11 @@ fi
 if [ "$1" != "test" -a -f .git/MERGE_RR ]; then
   mkdir -p .git/rr-cache
   for conflict in $(cat .git/MERGE_RR | tr '\0' '\n' | cut -f1); do
-    cp -R ".git/rr-cache/$conflict" "$DETOUL_TMP/orig-rr-cache/$conflict" 2>/dev/null
+    cp -a ".git/rr-cache/$conflict/." "$DETOUL_TMP/orig-rr-cache/$conflict/" 2>/dev/null
   done
 fi
 
-rm -fr .git/rr-cache >/dev/null 2>&1
+rm -fr .git/rr-cache 2>/dev/null
 mv "$DETOUL_TMP/orig-rr-cache" .git/rr-cache 2>/dev/null
 rm -fr "$DETOUL_TMP"
 exit "$exit_code"
