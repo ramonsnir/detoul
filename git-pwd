@@ -1,7 +1,5 @@
 #!/bin/bash
 
-while [ "$(pwd)" != "/" -a ! -d "$(pwd)/.git" ]; do
-  cd ..
-done
-
+cd "$(git rev-parse --git-dir)"
+cd ..
 pwd
