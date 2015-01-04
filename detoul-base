@@ -102,6 +102,12 @@ save-rerere-cache() {
   git checkout "$DETOUL_BRANCH" >/dev/null 2>&1
 }
 
+erase-commits-metadata() {
+  git filter-branch --env-filter 'export GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME"' -f "$1" &&
+    git filter-branch --env-filter 'export GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"' -f "$1" &&
+    git filter-branch --env-filter 'export GIT_COMMITTER_DATE="$GIT_AUTHOR_DATE"' -f "$1"
+}
+
 take() {
   if [ "$base_branch" == "" ]; then
     checkout
@@ -133,19 +139,26 @@ take() {
       fi
     }
     save-rerere-cache
-    
-    if [ "${1/squash}" != "$1" ]; then
+
+    if [ "${1/squash}" == "$1" ]; then
+      (
+        erase-commits-metadata "$DETOUL_BRANCH@{1}".."$DETOUL_BRANCH"
+      ) >/dev/null 2>&1 || fail
+    else
       message="$2"
       if [ "$message" == "" ]; then
         if [ "${1/merge}" != "$1" ]; then
-          message="$(git log HEAD~1..HEAD --pretty=format:%s)"
+          message="$(git log HEAD~..HEAD --pretty=format:%s)"
         else
           message="$branch"
         fi
       fi
+      author="$(git log HEAD~..HEAD --pretty=format:"%an <%ae>")"
+      date="$(git log HEAD~..HEAD --pretty=format:%ai)"
       (
         git reset --soft "$DETOUL_BRANCH@{1}" &&
-          git commit -m "$message"
+          git commit -m "$message" --author="$author" --date="$date" &&
+          erase-commits-metadata HEAD~..HEAD
       ) >/dev/null 2>&1 || fail
     fi
     
