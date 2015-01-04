@@ -106,13 +106,13 @@ take() {
   if [ "$base_branch" == "" ]; then
     checkout
   else
-    if [ "$2" == "" ]; then
+    if [ "$3" == "" ]; then
       if [ "$1" == "" ]; then
         echo -e "Taking '\e[92m$branch\e[0m'..."
       else
         echo -e "Taking '\e[92m$branch\e[0m' (\e[96m$(echo "$1" | cut -d'-' -f1)\e[0m)..."
       fi
-    elif [ "$2" == "refresh" ]; then
+    elif [ "$3" == "refresh" ]; then
       echo -e "\e[93mAttempting to refresh rerere cache...\e[0m" >&2
     fi
     source_branch="$(git show-ref "$branch" | cut -d' ' -f1 | head -n 1)"
@@ -124,11 +124,11 @@ take() {
         git checkout "$DETOUL_BRANCH" &&
         git reset --hard HEAD@{1}
     ) >/dev/null 2>&1 || {
-      if [ "$2" == "refresh" ]; then
+      if [ "$3" == "refresh" ]; then
         fail
       else
         git rebase --abort
-        take "$1" refresh
+        take "$1" "$2" refresh
         return
       fi
     }
