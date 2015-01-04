@@ -56,11 +56,19 @@ I plan to create (and maintain) packages for ArchLinux/Debian/RHEL and an instal
 
 Until `detoul` has a good test suite, this list should be taken with a grain of salt.
 
+##### Linux
+
 * a Linux-compatible operating system with a Bourne shell (bash)
 * the perl5 interpreter
 * git 1.7+ (developed with git 2.2.1, but also tested with a Centos 6.5 machine with git 1.7.1)
 
-A Windows machine with Cygwin bash (MINGW not tested) could use `detoul` too (note that perl is available as a Cygwin package). The colorized output in Cygwin has less colors (as it supports fewer colors than most terminal emulators), but that shouldn't bother users too much. If it does, then it is probably time for you to find out that Cygwin comes with Mintty (which is a pretty good terminal emulator - much better than the Windows command prompt) and can also work with xterm (which is available as a Cygwin package).
+##### Cygwin
+
+A Windows machine with Cygwin bash could use `detoul` too (note that perl is available as a Cygwin package). The colorized output in Cygwin has less colors (as it supports fewer colors than most terminal emulators), but that shouldn't bother users too much. If it does, then it is probably time for you to find out that Cygwin comes with Mintty (which is a pretty good terminal emulator - much better than the Windows command prompt) and can also work with xterm (which is available as a Cygwin package).
+
+##### MinGW
+
+Please see the issue https://github.com/ramonsnir/detoul/issues/21.
 
 ### detoul help
 
