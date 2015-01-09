@@ -80,7 +80,7 @@ prepare-rerere-cache() {
       (rmdir "$cache_name" || [ 1 -eq 1 ]) &&
       cp -R "$cache_name" .git/rr-cache
   ) >/dev/null 2>&1
-  if ! [ -d .git/rr-cache ] || [ "$1" == "refresh" ]; then
+  if [ "$1" == "refresh" ]; then
     cp -a "$DETOUL_TMP/orig-rr-cache/." .git/rr-cache/
   fi
 }
@@ -122,7 +122,7 @@ take() {
       echo -e "\e[93mAttempting to refresh rerere cache...\e[0m" >&2
     fi
     source_branch="$(git show-ref "$branch" | cut -d' ' -f1 | head -n 1)"
-    prepare-rerere-cache "$2"
+    prepare-rerere-cache "$3"
     (
       git checkout "$branch" &&
         git checkout "$DETOUL_BRANCH" &&
