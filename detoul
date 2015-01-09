@@ -32,8 +32,14 @@ export DETOUL_ORIG_BRANCH="$(git branch | grep "^*" | cut -c3-)"
 export DETOUL_TMP=".git/detoul.$(echo "$RANDOM$RANDOM" | git hash-object --stdin)"
 mkdir "$DETOUL_TMP"
 
-export DETOUL_ORIG_RERERE_ENABLE="$(git config --local rerere.enabled)"
-export DETOUL_ORIG_RERERE_AUTOUPDATE="$(git config --local rerere.autoupdate)"
+# we prefer the local config value, if git supports that
+if (git config --local -l >/dev/null 2>&1); then
+  export DETOUL_ORIG_RERERE_ENABLE="$(git config --local rerere.enabled)"
+  export DETOUL_ORIG_RERERE_AUTOUPDATE="$(git config --local rerere.autoupdate)"
+else
+  export DETOUL_ORIG_RERERE_ENABLE="$(git config rerere.enabled)"
+  export DETOUL_ORIG_RERERE_AUTOUPDATE="$(git config rerere.autoupdate)"
+fi
 git config rerere.enabled true
 git config rerere.autoupdate true
 mkdir -p .git/rr-cache
