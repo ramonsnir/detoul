@@ -93,6 +93,12 @@ The default `take` and `take-squash` actions behave a lot like `git-rebase` and 
 
 If you don't like this behavior, you can instead use `take-merge` (or `detoul add-to <release> <branch> --merge`) which will keep the source branch an ancestor of the target branch.
 
+### Using `git-rerere` with `detoul`
+
+Clearly unless all your feature branches are always completely disjoint, then you will often have merge conflicts between branches. `detoul` employs `git-rerere` to **re**use **re**corded **re**solutions of conflicts. If you try to `detoul make` a release and `detoul` encounters a conflict, it will exit with a failure but will allow you to manually resolve the merge conflict. If you configured your `git` to use `git-rerere` (by calling `git config rerere.enabled true`), then it will automatically record your conflict resolution. The next time you run `detoul make` for the release, `detoul` will take your recorded resolutions and use them to resolve the encountered conflict. `detoul` will then save the `rr-cache` (recorded resolutions cache) inside the `detoul-spec` branch so that everyone that wishes to build the release could reuse your recorded resolutions automatically.
+
+Note that while your resolutions will not be recorded without enabled `git-rerere`, `detoul` **will** automatically use recorded resolutions even without enabling `git-rerere` enabled in your local repository (of course, assuming someone recorded the conflict resolution before).
+
 ### Why in bash?
 
 I wrote this on my own time, and wanted to have fun. It shouldn't take more than an hour to translate detoul into any other language, once I choose to which one.
