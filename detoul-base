@@ -124,8 +124,7 @@ take() {
     source_branch="$(git show-ref "$branch" | cut -d' ' -f1 | head -n 1)"
     prepare-rerere-cache "$3"
     (
-      git checkout "$branch" &&
-        git checkout "$DETOUL_BRANCH" &&
+      git checkout "$DETOUL_BRANCH" &&
         (git rebase --onto "$DETOUL_BRANCH" "$base_branch" "$source_branch" || while (git rebase --continue) do [ 1 -eq 1 ]; done) &&
         git checkout "$DETOUL_BRANCH" &&
         git reset --hard HEAD@{1}
