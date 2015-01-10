@@ -123,6 +123,26 @@ take() {
     fi
     source_branch="$(git show-ref "$branch" | cut -d' ' -f1 | head -n 1)"
     prepare-rerere-cache "$3"
+
+    if [ "${1/squash}" != "$1" ]; then
+      git checkout "$source_branch" >/dev/null 2>&1 || fail
+      message="$2"
+      if [ "$message" == "" ]; then
+        if [ "${1/merge}" != "$1" ]; then
+          message="$(git log HEAD~..HEAD --pretty=format:%s)"
+        else
+          message="$branch"
+        fi
+      fi
+      author="$(git log HEAD~..HEAD --pretty=format:"%an <%ae>")"
+      date="$(git log HEAD~..HEAD --pretty=format:%ai)"
+      (
+        git reset --soft "$(git merge-base "$base_branch" "$source_branch")" &&
+          git commit -m "$message" --author="$author" --date="$date"
+      ) >/dev/null 2>&1 || fail
+      source_branch="$(git log HEAD~..HEAD --pretty=format:%H)"
+    fi
+
     (
       git checkout "$DETOUL_BRANCH" &&
         (git rebase --onto "$DETOUL_BRANCH" "$base_branch" "$source_branch" || while (git rebase --continue) do [ 1 -eq 1 ]; done) &&
@@ -139,27 +159,9 @@ take() {
     }
     save-rerere-cache
 
-    if [ "${1/squash}" == "$1" ]; then
-      (
-        erase-commits-metadata "$DETOUL_BRANCH@{1}".."$DETOUL_BRANCH"
-      ) >/dev/null 2>&1 || fail
-    else
-      message="$2"
-      if [ "$message" == "" ]; then
-        if [ "${1/merge}" != "$1" ]; then
-          message="$(git log HEAD~..HEAD --pretty=format:%s)"
-        else
-          message="$branch"
-        fi
-      fi
-      author="$(git log HEAD~..HEAD --pretty=format:"%an <%ae>")"
-      date="$(git log HEAD~..HEAD --pretty=format:%ai)"
-      (
-        git reset --soft "$DETOUL_BRANCH@{1}" &&
-          git commit -m "$message" --author="$author" --date="$date" &&
-          erase-commits-metadata HEAD~..HEAD
-      ) >/dev/null 2>&1 || fail
-    fi
+    (
+      erase-commits-metadata "$DETOUL_BRANCH@{1}".."$DETOUL_BRANCH"
+    ) >/dev/null 2>&1 || fail
     
     if [ "${1/merge}" != "$1" ]; then
       (
