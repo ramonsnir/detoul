@@ -162,6 +162,10 @@ save-spec() {
         git symbolic-ref HEAD refs/heads/detoul-spec &&
           rm .git/index &&
           git clean -fd &&
+          echo "thisimage binary" >> .gitattributes &&
+          echo "preimage binary" >> .gitattributes &&
+          echo "postimage binary" >> .gitattributes &&
+          git add .gitattributes &&
           git commit -m "detoul-spec" --allow-empty
       ) >/dev/null 2>&1
       stash-pop
