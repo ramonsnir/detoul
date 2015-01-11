@@ -122,8 +122,6 @@ take() {
       echo -e "\e[93mAttempting to refresh rerere cache...\e[0m" >&2
     fi
     source_branch="$(git show-ref "$branch" | cut -d' ' -f1 | head -n 1)"
-    prepare-rerere-cache "$3"
-
     if [ "${1/squash}" != "$1" ]; then
       git checkout "$source_branch" >/dev/null 2>&1 || fail
       message="$2"
@@ -142,6 +140,8 @@ take() {
       ) >/dev/null 2>&1 || fail
       source_branch="$(git log HEAD~..HEAD --pretty=format:%H)"
     fi
+
+    prepare-rerere-cache "$3"
 
     (
       git checkout "$DETOUL_BRANCH" &&
