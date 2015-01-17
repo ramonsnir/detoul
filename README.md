@@ -101,6 +101,10 @@ Clearly unless all your feature branches are always completely disjoint, then yo
 
 Note that while your resolutions will not be recorded without enabled `git-rerere`, `detoul` **will** automatically use recorded resolutions even without enabling `git-rerere` enabled in your local repository (of course, assuming someone recorded the conflict resolution before).
 
+### Auto-completion gone wrong
+
+After a couple of dozen releases, the release name auto-completion starts to be less useful, as there are too many irrelevant releases. If it bothers you, you can "archive" old releases using `detoul archive`. Archived releases won't be suggested by the auto-completion, and will not be built by mistake. They can still be browsed using `detoul cat` (which will also continue to auto-complete on them), and can be revived at any time using `detoul unarchive`.
+
 ### Why in bash?
 
 I wrote this on my own time, and wanted to have fun. It shouldn't take more than an hour to translate detoul into any other language, once I choose to which one.
