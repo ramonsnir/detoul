@@ -13,6 +13,10 @@ _detoul() {
     _script_commands=$(detoul commands)
   elif ([ "$(echo "$line" | wc -w)" == "2" ] && ! (echo "$line" | grep -q "\s$")); then
     _script_commands=$(detoul commands)
+  elif (echo "$line" | grep -q "^[[:graph:]]\+\s\+cat\+\s\+"); then
+    _script_commands=$(git ls-tree detoul-spec -r --full-tree 2>/dev/null | cut -f2 | grep -v "^\.[gr]" | sed -e 's/^\.archive\///g')
+  elif (echo "$line" | grep -q "^[[:graph:]]\+\s\+unarchive\+\s\+"); then
+    _script_commands=$(git ls-tree detoul-spec -r --full-tree 2>/dev/null | cut -f2 | grep "^\.archive/" | sed -e 's/^\.archive\///g')
   else
     _script_commands=$(git ls-tree detoul-spec --full-tree 2>/dev/null | cut -f2 | grep -v "^\.")
   fi

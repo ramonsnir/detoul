@@ -11,13 +11,18 @@ if (echo "$DETOUL_BRANCH" | grep -q -P "^detoul-.+"); then
 else
   spec_hash="$(git ls-tree detoul-spec | grep "\s$DETOUL_BRANCH$" | xargs echo | cut -d' ' -f3)"
   if [ "$spec_hash" == "" ]; then
-    echo -e "\e[31mBranch specification file not found.\e[0m"
-    exit 1
+    if [ "${1/archived}" != "$1" ]; then
+      spec_hash="$(git ls-tree detoul-spec -- .archive/ | grep "\s.archive/$DETOUL_BRANCH$" | xargs echo | cut -d' ' -f3)"
+    fi
+    if [ "$spec_hash" == "" ]; then
+      echo -e "\e[31mBranch specification file not found.\e[0m"
+      exit 1
+    fi
   fi
   git show "$spec_hash" > "$spec"
 fi
 
-if [ "$1" == "filtered" ]; then
+if [ "${1/filtered}" != "$1" ]; then
   content="$(cat "$spec")"
   echo "$content" | sed -e "s/\#.*$//g" | grep -vi "^$" > "$spec"
 fi

@@ -81,9 +81,11 @@ Usage:
     detoul create <release> [<base_branch>]
     detoul (test|make) <release>
     detoul add-to <release> <branch> [--squash] [--merge] [--message "<message>"]
-    detoul cat <release>
+    detoul cat (<release>|<archived-release>)
     detoul edit <release> [--amend]
     detoul push <release>
+    detoul archive <release>
+    detoul unarchive <archived-release>
     detoul help
 ```
 
