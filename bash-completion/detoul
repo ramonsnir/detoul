@@ -8,7 +8,7 @@ _detoul() {
   elif (echo "$line" | grep -q "^[[:graph:]]\+\s\+[[:graph:]]\+\s\+[[:graph:]]\+\s\+[[:graph:]]\+\s"); then
     _script_commands=$(detoul options "$(echo "$line" | sed -e 's/^[[:graph:]]\+\s\+\([[:graph:]]\+\).*/\1/')")
   elif (echo "$line" | grep -q "^[[:graph:]]\+\s\+[[:graph:]]\+\s\+[[:graph:]]\+\s"); then
-    _script_commands=$(git branch -a | grep -v "\->" | sed -e 's/remotes\/[[:alnum:]]\+\///g' | cut -c3- | sort | uniq | grep -v "^detoul-spec$" | xargs)
+    _script_commands=$((git tag; git branch -a | grep -v "\->" | sed -e 's/remotes\/[[:alnum:]]\+\///g' | cut -c3- | sort | uniq | grep -v "^detoul-spec$") | xargs)
   elif [ "$(echo "$line" | wc -w)" == "1" ]; then
     _script_commands=$(detoul commands)
   elif ([ "$(echo "$line" | wc -w)" == "2" ] && ! (echo "$line" | grep -q "\s$")); then
