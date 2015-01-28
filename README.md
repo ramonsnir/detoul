@@ -46,11 +46,11 @@ If your deployment procedured isn't configured to make the latest `detoul` branc
 
 ### Installation
 
-1. `git clone https://github.com/ramonsnir/detoul`
-2. Bring `detoul` into the path either by: editing your `~/.bashrc` adding `export PATH="$PATH:<path-to-cloned-repo>"`; or by symlinking it from `/usr/local/bin`.
-3. Add to your `~/.bashrc` a line like `. <path-to-cloned-repo>/bash-completion/detoul` (for auto-completion support).
+`git clone https://github.com/ramonsnir/detoul && cd detoul && ./install.sh`
 
-I plan to create (and maintain) packages for ArchLinux/Debian/RHEL and an installer for Windows.
+There are some packages available that install detoul. More are planned (if you would like to help create packages - feel free to contribute!).
+
+* Arch Linux: https://aur.archlinux.org/packages/detoul/
 
 ### Requirements
 
