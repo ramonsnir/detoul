@@ -108,6 +108,13 @@ erase-commits-metadata() {
     git filter-branch --env-filter 'export GIT_COMMITTER_DATE="$GIT_AUTHOR_DATE"' -f "$1"
 }
 
+rebase-continue() {
+  git rebase --continue || (
+    test -d "$(git pwd)"/.git/rebase-merge -o -d "$(git pwd)"/.git/rebase-apply &&
+      !(git status --porcelain | grep -q "^.[^ ]")
+  )
+}
+
 take() {
   if [ "$base_branch" == "" ]; then
     checkout
@@ -145,7 +152,7 @@ take() {
 
     (
       git checkout "$DETOUL_BRANCH" &&
-        (git rebase --onto "$DETOUL_BRANCH" "$base_branch" "$source_branch" || while (git rebase --continue) do [ 1 -eq 1 ]; done) &&
+        (git rebase --onto "$DETOUL_BRANCH" "$base_branch" "$source_branch" || while (rebase-continue) do [ 1 -eq 1 ]; done) &&
         git checkout "$DETOUL_BRANCH" &&
         git reset --hard HEAD@{1}
     ) >/dev/null 2>&1 || {
