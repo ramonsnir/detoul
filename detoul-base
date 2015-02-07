@@ -119,11 +119,19 @@ take() {
   if [ "$base_branch" == "" ]; then
     checkout
   else
+    git checkout "$DETOUL_BRANCH" >/dev/null 2>&1
+    cached_commit_key="$(detoul-cache hash take $@)"
     if [ "$3" == "" ]; then
       if [ "$1" == "" ]; then
         echo -e "Taking '\e[92m$branch\e[0m'..."
       else
         echo -e "Taking '\e[92m$branch\e[0m' (\e[96m$(echo "$1" | cut -d'-' -f1)\e[0m)..."
+      fi
+      cached_commit="$(detoul-cache read "$cached_commit_key")"
+      if [ $? -ne 0 ] || ! (git reset --hard "$cached_commit" >/dev/null 2>&1); then
+        detoul-cache delete "$cached_commit_key"
+      else
+        return
       fi
     elif [ "$3" == "refresh" ]; then
       echo -e "\e[93mAttempting to refresh rerere cache...\e[0m" >&2
@@ -175,6 +183,8 @@ take() {
         bash -c "git filter-branch --parent-filter 'cat; echo \"-p $source_branch\"' -f HEAD~..HEAD"
       ) >/dev/null 2>&1 || fail
     fi
+
+    detoul-cache write "$cached_commit_key" "$(git log HEAD~..HEAD --pretty=format:%H)"
   fi
 }
 
@@ -197,7 +207,7 @@ while read -r line; do
     continue
   fi
   command=($line)
-  branch="$(autocomplete "${command[1]//\*/.*}")"
+  export branch="$(autocomplete "${command[1]//\*/.*}")"
   (make-detoul-dependency "$branch") || fail
   if ! validate-ref-name "$branch" ; then
     echo -e "\e[31mReference not found: '$branch'.\e[0m" >&2

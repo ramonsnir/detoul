@@ -1,0 +1,71 @@
+#!/bin/bash
+
+CACHE_DIR="$(git pwd)/.git/detoul-cache"
+mkdir -p "$CACHE_DIR"
+touch "$CACHE_DIR"/index
+
+exit_code="0"
+
+quit() {
+  exit "$exit_code"
+}
+
+fail() {
+  exit_code="1"
+  quit
+}
+
+touch() {
+  index="$(cat "$CACHE_DIR"/index | grep -v "^$1")"
+  echo -n "$index" > "$CACHE_DIR"/index
+  echo "$1 $(date +%s)" >> "$CACHE_DIR"/index
+}
+
+gc() {
+  echo -n "" > "$CACHE_DIR"/new_index
+  while read -r line; do
+    file="$(echo "$line" | xargs -n 1 echo 2>/dev/null | head -n 1)"
+    ts="$(echo "$line" | xargs -n 1 echo | tail -n 1)"
+    if [ ! -f "$CACHE_DIR/${file:0:2}/${file:2}" -o $(($(date +%s) - $ts)) -gt 1209600 ]; then
+      rm "$CACHE_DIR/${file:0:2}/${file:2}" 2>/dev/null
+      rmdir "$CACHE_DIR/${file:0:2}" 2>/dev/null || [ 1 -eq 1 ]
+      echo "old: $file"
+    else
+      echo "$file $ts" >> "$CACHE_DIR"/new_index
+      echo "new: $file"
+    fi
+  done < "$CACHE_DIR"/index
+  mv "$CACHE_DIR"/new_index "$CACHE_DIR"/index
+}
+
+case "$1" in
+  gc)
+    gc || fail
+    ;;
+  hash)
+		(
+      echo "$@"
+      echo "$(git log HEAD~..HEAD --pretty=format:%H)"
+      echo "$(git show-ref "$branch" | cut -d' ' -f1 | head -n 1)"
+    ) | git hash-object --stdin
+    ;;
+  read)
+    (
+      gc >/dev/null &&
+        touch "$2" &&
+        cat "$CACHE_DIR/${2:0:2}/${2:2}"
+    ) 2>/dev/null || fail
+    ;;
+  delete)
+    rm "$CACHE_DIR/${2:0:2}/${2:2}" >/dev/null 2>&1
+    gc >/dev/null 2>&1 || fail
+    ;;
+  write)
+    gc >/dev/null 2>&1 || fail
+    mkdir -p "$CACHE_DIR/${2:0:2}" >/dev/null 2>&1
+    echo -n "$3" > "$CACHE_DIR/${2:0:2}/${2:2}"
+    touch "$2"
+    ;;
+esac
+
+quit
