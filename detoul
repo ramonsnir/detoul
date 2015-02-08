@@ -262,7 +262,7 @@ save-spec() {
       stash
       git checkout detoul-spec >/dev/null 2>&1 &&
         mv ".archive/$2" . &&
-        rmdir .archive 2>/dev/null &&
+        (rmdir .archive 2>/dev/null || [ 1 -eq 1 ]) &&
         git add .archive &&
         git add "$2" &&
         git commit -m "unarchived '$2'" >/dev/null
