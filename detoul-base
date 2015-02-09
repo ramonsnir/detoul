@@ -172,7 +172,9 @@ take() {
         return
       fi
     }
-    save-rerere-cache
+    if [ "$3" == "refresh" ]; then
+      save-rerere-cache
+    fi
 
     (
       erase-commits-metadata "$DETOUL_BRANCH@{1}".."$DETOUL_BRANCH"
