@@ -19,10 +19,18 @@ make-detoul-dependency() {
   prepare-rerere-cache
   ((
     export DETOUL_COLOR_ALWAYS="1"
-    (detoul cat "$1" >/dev/null 2>&1 || (echo "0" >"$exit_code_file" && exit 1)) &&
-      echo -e "Making spec '\e[92m$1\e[0m...'" &&
-      detoul make "$1" &&
+    if ( detoul cat "$1" >/dev/null 2>&1 ); then
+      if ( git ls-tree detoul-spec | grep -q "\s$1$" ); then
+        echo -e "Making spec '\e[92m$1\e[0m...'" &&
+          detoul make "$1" &&
+          echo "0" >"$exit_code_file"
+      else
+        echo -e "\e[93mWarning: there is an archived detoul spec called '\e[92m$1\e[93m'.\e[0m"
+        echo "0" >"$exit_code_file"
+      fi
+    else
       echo "0" >"$exit_code_file"
+    fi
   ) 2>&1 1>&3 | sed -e 's/^/> /g') 3>&1 | sed -e '1!s/^\([^>]\)/> \1/g'
   exit_code="$(cat "$exit_code_file")"
   rm "$exit_code_file"
