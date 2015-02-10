@@ -45,6 +45,11 @@ git config rerere.autoupdate true
 mkdir -p .git/rr-cache
 mv .git/rr-cache "$DETOUL_TMP/orig-rr-cache" 2>/dev/null
 
+echo "0" > "$DETOUL_TMP/reflog_shift"
+original_reflog="$(git reflog | head -n 1)"
+echo "Now reflog is:"
+echo "  $original_reflog"
+
 stash() {
   cd "$GIT_WD"
 
@@ -69,6 +74,12 @@ stash-pop() {
 quit() {
   cd "$GIT_WD"
   echo "$exit_code" >"$DETOUL_TMP/exitcode"
+
+  reflog_shift=$(cat "$DETOUL_TMP/reflog_shift")
+  echo "Original reflog:"
+  echo "  $original_reflog"
+  echo "Candidate reflog:"
+  echo "  $(git reflog | head -n $(($reflog_shift + 1)) | tail -n 1 | sed -e 's/HEAD@.[0\-9]\+./HEAD@{0}/')"
   exit "$exit_code"
 }
 
@@ -289,9 +300,11 @@ save-spec() {
         echo -e "\e[32mIntegration branch succesfully created.\e[0m"
         ;;
       make)
+        echo "1" > "$DETOUL_TMP/reflog_shift"
         git checkout "$DETOUL_BRANCH" >/dev/null 2>&1
         ;;
       push)
+        echo "1" > "$DETOUL_TMP/reflog_shift"
         git checkout "$DETOUL_BRANCH" >/dev/null 2>&1
         git push --set-upstream "$GIT_REMOTE" "$DETOUL_BRANCH" --force
         git checkout "$DETOUL_ORIG_BRANCH" >/dev/null 2>&1
