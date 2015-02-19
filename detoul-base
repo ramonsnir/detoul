@@ -69,7 +69,8 @@ checkout() {
   fi
   (
     git checkout $checkout_branch &&
-      git branch -f "$DETOUL_BRANCH" &&
+      (git branch -D "$DETOUL_BRANCH" || [ 1 -eq 1 ]) &&
+      git branch "$DETOUL_BRANCH" &&
       git checkout "$DETOUL_BRANCH"
   ) >/dev/null 2>&1 || fail
   base_branch="$branch"
@@ -111,9 +112,7 @@ save-rerere-cache() {
 }
 
 erase-commits-metadata() {
-  git filter-branch --env-filter 'export GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME"' -f "$1" &&
-    git filter-branch --env-filter 'export GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"' -f "$1" &&
-    git filter-branch --env-filter 'export GIT_COMMITTER_DATE="$GIT_AUTHOR_DATE"' -f "$1"
+  git filter-branch --env-filter 'export GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME"; export GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"; export GIT_COMMITTER_DATE="$GIT_AUTHOR_DATE"' -f "$1"
 }
 
 rebase-continue() {
