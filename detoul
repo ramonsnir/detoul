@@ -189,7 +189,7 @@ save-spec() {
       ;;
     cat)
       load-spec archived
-      echo -e "$(cat "$DETOUL_TMP/spec" | colorize-spec)"
+      cat "$DETOUL_TMP/spec"
       quit
       ;;
     edit)
