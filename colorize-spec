@@ -7,25 +7,25 @@ regex() {
 }
 
 mark-comments() {
-  regex "s/(#.*)/\\\e[38;5;22m\1\\\e[0m/g"
+  regex "s/(#.*)/\\\033[38;5;22m\1\\\033[0m/g"
 }
 
 mark-unsafe-checkouts() {
   spec="$(cat)"
   echo "$spec" | head -n 1
-  echo "$spec" | tail -n +2 | regex "s/^(\s*checkout)/\\\e[91m\1\\\e[0m/g"
+  echo "$spec" | tail -n +2 | regex "s/^(\s*checkout)/\\\033[91m\1\\\033[0m/g"
 }
 
 mark-branch-names() {
-  regex "s/^(\s*(?!exec)${graph_not_comment}+\s+)(${graph_not_comment}+)/\1\\\e[92m\2\\\e[0m/g"
+  regex "s/^(\s*(?!exec)${graph_not_comment}+\s+)(${graph_not_comment}+)/\1\\\033[92m\2\\\033[0m/g"
 }
 
 mark-execs() {
-  regex "s/^(\s*exec)(.*)$/\\\e[31m\1\\\e[96m\2\\\e[0m/g"
+  regex "s/^(\s*exec)(.*)$/\\\033[31m\1\\\033[96m\2\\\033[0m/g"
 }
 
 mark-squash-commits-messages() {
-  regex "s/^(\s*(?:take|rebase)-squash\s+${graph_not_comment}+\s+)((?:(?!#)\N\{\})+)/\1\\\e[37m\2\\\e[0m/g"
+  regex "s/^(\s*(?:take|rebase)-squash\s+${graph_not_comment}+\s+)((?:(?!#)\N\{\})+)/\1\\\033[37m\2\\\033[0m/g"
 }
 
 mark-unsafe-checkouts |
@@ -35,4 +35,4 @@ mark-unsafe-checkouts |
   mark-comments
 #sed -r -e  \
 #    -e  \
-#    -e "s/^\([[:graph:]]\+\s\+\)\([[:graph:]]\+\)/\1\\\e[92m\2\\\e[0m/g"
+#    -e "s/^\([[:graph:]]\+\s\+\)\([[:graph:]]\+\)/\1\\\033[92m\2\\\033[0m/g"

@@ -15,7 +15,7 @@ rm -f "$spec"
       spec_hash="$(git ls-tree detoul-spec -- .archive/ | grep "\s.archive/$DETOUL_BRANCH$" | xargs echo | cut -d' ' -f3)"
     fi
     if [ "$spec_hash" == "" ]; then
-      echo -e "\e[31mBranch specification file not found.\e[0m"
+      echo -e "\033[31mBranch specification file not found.\033[0m"
       exit 1
     fi
   fi
